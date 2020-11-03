@@ -1,2 +1,2 @@
 # Propositional-Calculus-Application
-Propositional Calculus Application made with Python and PyQt
+Made with Python and PyQt
