@@ -3,5 +3,7 @@
 
 
 class PropLaws:
+
     def idempotence(self):
+        return False
 
