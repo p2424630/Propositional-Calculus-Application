@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 
-@abstractmethod
 @dataclass(frozen=True)
 class Proposition(object, ABC):
 
+    @abstractmethod
     def idempotence(self):
         return False

@@ -2,17 +2,10 @@
 # @Date:   19 Nov 2020 20:21
 
 
-class Tree:
-    __slots__ = ('__data', 'left', 'right')
+class Node:
+    __slots__ = ('value', 'left', 'right')
 
-    def __init__(self, data, left=None, right=None):
-        self.__data = data
-        self.left = left
-        self.right = right
-
-    @property
-    def data(self):
-        return self.__data
-
-
-
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
