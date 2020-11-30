@@ -1,7 +1,7 @@
 # @Author: GKarseras
 # @Date:   15 Nov 2020 11:13
 
-from pca.propcalc.calctools.tree import Node
+from pca.propcalc.tools.config import LogicSymbols
 
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
