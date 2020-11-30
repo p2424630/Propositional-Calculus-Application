@@ -13,3 +13,5 @@ n2 = Node(2)
 n3 = Node(3)
 n1.left = n2
 n1.right = n3
+
+n5 = Node(5, n1, n2)
