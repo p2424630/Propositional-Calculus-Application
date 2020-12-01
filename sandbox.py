@@ -2,8 +2,8 @@
 # @Date:   16 Nov 2020 11:05
 
 from pca.propcalc.main.proposition import *
-from pca.propcalc.main.tree import *
-from pca.propcalc.main.truthtable import *
+from pca.propcalc.tools.truthtable import *
+from pca.propcalc.tools.tree import *
 
 # root = Node(1)
 # n2 = Node(2)
@@ -15,4 +15,6 @@ from pca.propcalc.main.truthtable import *
 
 
 parsed_tree = Node('and', Node('B'), Node('and', Node('implies', Node('A'), Node('B')), Node('A')))
-printTruthTable(parsed_tree)
+formula = ['A', 'and', 'B']
+print(buildTree(formula))
+

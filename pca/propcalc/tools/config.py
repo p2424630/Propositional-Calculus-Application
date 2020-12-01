@@ -3,9 +3,18 @@
 
 
 class LogicSymbols:
-    NEGATION = ['\u00AC', '\u0021', '\u02DC', 'not']
-    IMPLICATION = ['\u21D2', '\u2192', 'implies']
-    EQUIVALENCE = ['\u21D4', '\u2194', 'iff']
-    CONJUNCTION = ['\u2227', '\u00B7', '\u0026', 'and']
-    DISJUNCTION = ['\u2228', '\u002B', '\u2225', 'or']
-    EXCLUSIVEOR = ['\u2295', '\u22BB', 'xor']
+    NEGATION = ('\u00AC', '\u0021', '\u02DC', 'not')
+    IMPLICATION = ('\u21D2', '\u2192', 'implies')
+    EQUIVALENCE = ('\u21D4', '\u2194', 'iff')
+    CONJUNCTION = ('\u2227', '\u00B7', '\u0026', 'and')
+    DISJUNCTION = ('\u2228', '\u002B', '\u2225', 'or')
+    # EXCLUSIVEOR = ('\u2295', '\u22BB', 'xor')
+
+
+# PRECEDENCE = {
+#     LogicSymbols.NEGATION: 1,
+#     LogicSymbols.CONJUNCTION: 2,
+#     LogicSymbols.DISJUNCTION: 3,
+#     LogicSymbols.IMPLICATION: 4,
+#     LogicSymbols.EQUIVALENCE: 5
+# }

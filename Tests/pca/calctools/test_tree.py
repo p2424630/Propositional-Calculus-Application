@@ -1,9 +1,8 @@
 # @Author: GKarseras
 # @Date:   19 Nov 2020 20:21
 
-from pca.propcalc.main.tree import Node
+from pca.propcalc.tools.tree import Node
 
-import pytest
 from copy import deepcopy
 
 
