@@ -11,6 +11,8 @@ class LogicSymbols:
     # EXCLUSIVEOR = ('\u2295', '\u22BB', 'xor')
 
 
+SYMBOLS = ['\u00AC', '\u21D2', '\u21D4', '\u2227', '\u2228']
+
 # PRECEDENCE = {
 #     LogicSymbols.NEGATION: 1,
 #     LogicSymbols.CONJUNCTION: 2,

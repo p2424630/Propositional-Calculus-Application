@@ -1,9 +1,14 @@
 # @Author: GKarseras
 # @Date:   17 Nov 2020 08:28
 
-from pca.propcalc.tools.tree import Node
-from pca.propcalc.tools.config import *
+from pca.propcalc.main.proposition import Proposition
+from pca.propcalc.main.proposition import NegationOp
+from pca.propcalc.main.proposition import DisjunctionOp
+from pca.propcalc.main.proposition import ConjunctionOp
+from pca.propcalc.main.proposition import ImplicationOp
+from pca.propcalc.main.proposition import EquivalenceOp
+from pca.propcalc.tools.config import LogicSymbols
 
 
-def truthTable(root: Node) -> None:
-    print(Node)
+def truthTable(prop: Proposition) -> None:
+    pass

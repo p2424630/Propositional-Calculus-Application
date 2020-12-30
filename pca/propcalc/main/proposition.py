@@ -2,57 +2,40 @@
 # @Date:   15 Nov 2020 11:13
 
 from __future__ import annotations
-from typing import Tuple, Optional
-# from dataclasses import dataclass
-# from abc import ABC, abstractmethod
-
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
+from typing import Dict
 from pca.propcalc.tools.config import LogicSymbols
+from operator import or_
 
 
-# @dataclass(frozen=True)
-class Proposition:
+@dataclass(frozen=True)
+class Proposition(ABC):
 
-    def __init__(self) -> None:
-        self._value = False
+    # TODO: Structurally equivalence
+    # def __eq__(self, other: Proposition) -> bool:
+    #     return self.value == other.value
 
-    def __eq__(self, other: Proposition) -> bool:
-        return self.value == other.value
-
-    def __repr__(self) -> str:
-        return f'{self._value}'
-
-    @property
-    def value(self) -> bool:
-        return self._value
-
-    @value.setter
-    def value(self, value: bool) -> None:
-        self._value = value
+    @abstractmethod
+    def eval(self):
+        raise NotImplementedError
 
 
-class Operation(Proposition):
-
-    def __init__(self, op: LogicSymbols = None) -> None:
-        super().__init__()
-        self.op = op
+class Variable(Proposition, ABC):
+    pass
 
 
-class UnaryOp(Operation):
+class Operation(Proposition, ABC):
+    pass
 
-    def __init__(self, op: LogicSymbols, prop: Proposition) -> None:
-        super().__init__(op)
-        self.prop = prop
 
-    def __repr__(self) -> str:
+class UnaryOp(Operation, ABC):
+
+    def __repr__(self):
         return f'{self.op} {self.prop.value}'
 
 
-class BinaryOp(Operation):
-
-    def __init__(self, op: LogicSymbols, prop_l: Proposition, prop_r: Proposition) -> None:
-        super().__init__(op)
-        self.prop_l = prop_l
-        self.prop_r = prop_r
+class BinaryOp(Operation, ABC):
 
     def __repr__(self) -> str:
         return f'{self.prop_l.value} {self.op} {self.prop_r.value}'
@@ -60,34 +43,51 @@ class BinaryOp(Operation):
 
 class NegationOp(UnaryOp):
 
-    def __init__(self, prop) -> None:
-        super().__init__(LogicSymbols.NEGATION, prop)
-        self.value = not self.prop.value
+    def eval(self, to_eval: Dict):
+        return not eval(self.prop)
 
 
 class DisjunctionOp(BinaryOp):
 
     def __init__(self, prop_l: Proposition, prop_r: Proposition) -> None:
         super().__init__(LogicSymbols.DISJUNCTION, prop_l, prop_r)
-        self.value = self.prop_l.value or self.prop_r.value
+        # self.value = self.prop_l.value or self.prop_r.value
 
 
 class ConjunctionOp(BinaryOp):
 
     def __init__(self, prop_l: Proposition, prop_r: Proposition) -> None:
         super().__init__(LogicSymbols.CONJUNCTION, prop_l, prop_r)
-        self.value = self.prop_l.value and self.prop_r.value
+        # self.value = self.prop_l.value and self.prop_r.value
 
 
 class ImplicationOp(BinaryOp):
 
     def __init__(self, prop_l: Proposition, prop_r: Proposition) -> None:
         super().__init__(LogicSymbols.IMPLICATION, prop_l, prop_r, )
-        self.value = not self.prop_l.value or self.prop_r.value
+        # self.value = not self.prop_l.value or self.prop_r.value
 
 
 class EquivalenceOp(BinaryOp):
 
     def __init__(self, prop_l: Proposition, prop_r: Proposition) -> None:
         super().__init__(LogicSymbols.EQUIVALENCE, prop_l, prop_r)
-        self.value = (self.prop_l.value or not self.prop_r.value) and (not self.prop_l.value or self.prop_r.value)
+        # self.value = (self.prop_l.value or not self.prop_r.value) and (not self.prop_l.value or self.prop_r.value)
+
+
+class TrueProp(Proposition):
+
+    def eval(self):
+        return True
+
+    def __repr__(self) -> str:
+        return f'{self.eval()}'
+
+
+class FalseProp(Proposition):
+
+    def eval(self):
+        return False
+
+    def __repr__(self) -> str:
+        return f'{self.eval()}'
