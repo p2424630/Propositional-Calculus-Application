@@ -4,21 +4,37 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from itertools import permutations
 from typing import Dict
-from pca.propcalc.tools.config import LogicSymbols
-from operator import or_
+from pca.propcalc.tools.config import LogicSymbols, PARSER
 
 
-@dataclass(frozen=True)
+# @dataclass(frozen=True)
 class Proposition(ABC):
+
+    def __init__(self, prop):
+        self.parsed = PARSER.parse(prop)
+        pass
 
     # TODO: Structurally equivalence
     # def __eq__(self, other: Proposition) -> bool:
     #     return self.value == other.value
 
-    @abstractmethod
-    def eval(self):
+    # @abstractmethod
+    def eval(self, prop_l: Proposition, prop_r: Proposition, to_eval: list):
         raise NotImplementedError
+
+
+# def satisfiable(prop: Proposition):
+#     return any(permutations{True, False} Proposition == True)
+#
+#
+# def tautology(prop: Proposition):
+#     return all(permutations{True, False} Proposition == True)
+#
+#
+# def contradiction(prop: Proposition):
+#     return all(permutations{True, False} Proposition == False)
 
 
 class Variable(Proposition, ABC):
@@ -29,10 +45,13 @@ class Operation(Proposition, ABC):
     pass
 
 
-class UnaryOp(Operation, ABC):
+class UnaryOp(Operation):
 
     def __repr__(self):
         return f'{self.op} {self.prop.value}'
+
+    def eval(self, prop_l: Proposition, prop_r: None, to_eval: bool):
+        raise NotImplementedError
 
 
 class BinaryOp(Operation, ABC):
@@ -43,15 +62,17 @@ class BinaryOp(Operation, ABC):
 
 class NegationOp(UnaryOp):
 
-    def eval(self, to_eval: Dict):
-        return not eval(self.prop)
+    def eval(self, prop_l: Proposition, prop_r: None, to_eval: bool):
+        return not prop_l
 
 
 class DisjunctionOp(BinaryOp):
 
-    def __init__(self, prop_l: Proposition, prop_r: Proposition) -> None:
-        super().__init__(LogicSymbols.DISJUNCTION, prop_l, prop_r)
-        # self.value = self.prop_l.value or self.prop_r.value
+    def __init__(self, prop_l: Proposition, prop_r: Proposition, to_eval=None) -> None:
+        self.eval(prop_l, prop_r, to_eval)
+
+    def eval(self, prop_l, prop_r, to_eval):
+         return prop_l or prop_r
 
 
 class ConjunctionOp(BinaryOp):
