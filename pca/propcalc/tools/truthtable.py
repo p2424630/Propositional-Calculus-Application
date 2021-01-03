@@ -7,7 +7,7 @@ from pca.propcalc.main.proposition import DisjunctionOp
 from pca.propcalc.main.proposition import ConjunctionOp
 from pca.propcalc.main.proposition import ImplicationOp
 from pca.propcalc.main.proposition import EquivalenceOp
-from pca.propcalc.tools.config import LogicSymbols
+from pca.propcalc.tools.config import PARSER
 
 
 def truthTable(prop: Proposition) -> None:

@@ -5,4 +5,4 @@ from pca.propcalc.main.proposition import *
 from pca.propcalc.tools.truthtable import *
 
 
-a = Proposition('(q OR p AND q IMPLIES (q + ! p))')
+a = Proposition('Q or P and A or P or Q')
