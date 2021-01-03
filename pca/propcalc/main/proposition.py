@@ -37,7 +37,7 @@ class Proposition:
 class Variable(Proposition):
 
     def __init__(self, name):
-        self.name = name
+        self.name = str(name)
 
     def __repr__(self):
         return self.__class__.__name__ + '("' + self.name + '")'
@@ -51,27 +51,27 @@ class Operation(Proposition):
 
 class UnaryOp(Operation):
 
-    def __init__(self, elem):
-        self.elem = elem
+    def __init__(self, op):
+        self.op = op
 
     def __repr__(self):
-        return self.__class__.__name__ + "(" + repr(self.elem) + ")"
+        return f'{self.__class__.__name__}({repr(self.op)})'
 
     @abstractmethod
     def eval(self):
         raise NotImplementedError
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.elem == other.elem
+        return isinstance(other, self.__class__) and self.op == other.op
 
 
 class BinaryOp(Operation):
 
-    def __init__(self, *elems):
-        self.elems = elems
+    def __init__(self, *ops):
+        self.ops = ops
 
     def __repr__(self):
-        return self.__class__.__name__ + "(" + ", ".join((repr(x) for x in self.elems)) + ")"
+        return self.__class__.__name__ + f'({", ".join(repr(op) for op in self.ops)})'
 
     @abstractmethod
     def eval(self, prop_l: Proposition, prop_r: Proposition):
