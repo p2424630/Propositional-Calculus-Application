@@ -40,7 +40,7 @@ class Variable(Proposition):
         self.name = str(name)
 
     def __repr__(self):
-        return self.__class__.__name__ + '("' + self.name + '")'
+        return f'{self.__class__.__name__}({repr(self.name)})'
 
     pass
 
