@@ -1,10 +1,12 @@
 # @Author: GKarseras
 # @Date:   15 Nov 2020 11:15
+
 from copy import deepcopy
-
-from pca.propcalc.main.proposition import *
-
 import pytest
+
+
+from pca.propcalc.tools.prop import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp, ImplicationOp
+from pca.propcalc.tools.prop import NegationOp, TrueProp, Variable, AtomTransformer
 
 
 class TestProposition:
@@ -34,3 +36,4 @@ class TestProposition:
         assert res.value
         res = ConjunctionOp(DisjunctionOp(a, b), ImplicationOp(a, DisjunctionOp(NegationOp(a), b)))
         assert not res.value
+

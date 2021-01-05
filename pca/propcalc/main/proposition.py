@@ -2,131 +2,69 @@
 # @Date:   15 Nov 2020 11:13
 
 from __future__ import annotations
-from dataclasses import dataclass
-from abc import ABC, abstractmethod
-from itertools import permutations
-from typing import Dict
+from itertools import product
 
-'''
-Predicates are functions of zero or more variables that return Boolean values. 
-Thus predicates can be true sometimes and false sometimes, depending on the values of their arguments
-'''
+from pca.propcalc.tools.prop import AtomTransformer
+from pca.propcalc.tools.grammar import PARSER
 
 
-# @dataclass(frozen=True)
-class Proposition:
-    pass
+class InitProp:
+    __slots__ = ('_prop', '_parsed', '_trans', '_vars', '_combs')
 
-    # TODO: Structurally equivalence
-    # def __eq__(self, other: Proposition) -> bool:
-    #     return self.value == other.value
+    def __init__(self, prop: str):
+        self._prop = prop
+        self._parsed = PARSER.parse(self._prop)
+        self._trans = None
+        self._vars = None
+        self._combs = None
 
+    def _transform(self) -> None:
+        """
+        Transform Parsed string stored in self._parsed using custom Transformer.
 
-# def satisfiable(prop: Proposition):
-#     return any(permutations{True, False} Proposition == True)
-#
-#
-# def tautology(prop: Proposition):
-#     return all(permutations{True, False} Proposition == True)
-#
-#
-# def contradiction(prop: Proposition):
-#     return all(permutations{True, False} Proposition == False)
+        Saving results in self._trans for the transformed and
+        self._vars for the number of variables that were found.
+        """
+        tr = AtomTransformer()
+        try:
+            trans = tr.transform(self._parsed)
+        except Exception as e:
+            raise Exception(f'Transforming {self._parsed}') from e
+        if not isinstance(trans, list):
+            raise TypeError(f'Expected type list, got {type(trans)} instead')
+        self._trans = trans[0]
+        self._vars = tr.prop_vars if (len(tr.prop_vars) > 0) else None
 
+    def _createCombinations(self, max_vars: int = 5) -> None:
+        """
+        If not already parsed then call parseANDtrans function,
+        create all possible Interpretations of the variables in a formula.
 
-class Variable(Proposition):
+        :param max_vars: Default set to 5 variables, overwrite if required.
+        """
+        if not (self._parsed and self._vars):
+            self._parseANDtrans()
+        if self._vars is None or (len(self._vars) < 1):
+            raise ValueError('Number of variables must be at least 1')
+        n = len(self._vars)
+        if n > max_vars:
+            raise ValueError(f'Variable length {n}, exceeded the allowed {max_vars}')
+        self._combs = (False, True) if (n == 1) else product([False, True], repeat=n)
 
-    def __init__(self, name):
-        self.name = str(name)
+    def truth(self):
+        if not self._combs:
+            self._createCombinations()
+        for x, i in self._combs:
+            print(f'x: {x}\ni: {i}')
 
-    def __repr__(self):
-        return f'{self.__class__.__name__}({repr(self.name)})'
+    def satisfiable(self):
+        # return any(permutations{True, False} Proposition == True)
+        pass
 
-    pass
+    def tautology(self):
+        # return all(permutations{True, False} Proposition == True)
+        pass
 
-
-class Operation(Proposition):
-    pass
-
-
-class UnaryOp(Operation):
-
-    def __init__(self, op):
-        self.op = op
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({repr(self.op)})'
-
-    @abstractmethod
-    def eval(self):
-        raise NotImplementedError
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.op == other.op
-
-
-class BinaryOp(Operation):
-
-    def __init__(self, *ops):
-        self.ops = ops
-
-    def __repr__(self):
-        return self.__class__.__name__ + f'({", ".join(repr(op) for op in self.ops)})'
-
-    @abstractmethod
-    def eval(self, prop_l: Proposition, prop_r: Proposition):
-        raise NotImplementedError
-
-
-class NegationOp(UnaryOp):
-
-    def eval(self):
-        return not self
-
-
-class DisjunctionOp(BinaryOp):
-
-    def eval(self, prop_l: Proposition, prop_r: Proposition):
-        return prop_l or prop_r
-
-
-class ConjunctionOp(BinaryOp):
-
-    def eval(self, prop_l: Proposition, prop_r: Proposition):
-        return prop_l and prop_r
-
-
-class ImplicationOp(BinaryOp):
-
-    def eval(self, prop_l: Proposition, prop_r: Proposition):
-        return not prop_l or prop_r
-
-
-class EquivalenceOp(BinaryOp):
-
-    def eval(self, prop_l: Proposition, prop_r: Proposition):
-        return (prop_l or not prop_r) and (not prop_l or prop_r)
-
-
-class TrueProp(Proposition):
-
-    def eval(self):
-        return True
-
-    def __repr__(self) -> str:
-        return 'true'
-
-    def __bool__(self):
-        return True
-
-
-class FalseProp(Proposition):
-
-    def eval(self):
-        return False
-
-    def __repr__(self) -> str:
-        return 'false'
-
-    def __bool__(self):
-        return False
+    def contradiction(self):
+        # return all(permutations{True, False} Proposition == False)
+        pass
