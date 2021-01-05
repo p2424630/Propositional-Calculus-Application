@@ -103,19 +103,19 @@ class BinaryOp(Operation, ABC):
 class NegationOp(UnaryOp):
 
     def eval(self):
-        return not self.prop
+        return ~ self.prop
 
 
 class DisjunctionOp(BinaryOp):
 
     def eval(self):
-        return self.prop_l or self.prop_r
+        return self.prop_l | self.prop_r
 
 
 class ConjunctionOp(BinaryOp):
 
     def eval(self):
-        return self.prop_l and self.prop_r
+        return self.prop_l & self.prop_r
 
 
 class ImplicationOp(BinaryOp):
@@ -132,9 +132,9 @@ class EquivalenceOp(BinaryOp):
 
 class AtomTransformer(Transformer):
 
-    def __init__(self):
+    def __init__(self, interp):
         super().__init__()
-        self.prop_vars = []
+        self.interp = interp
 
     def start(self, value): return value
 
@@ -148,11 +148,11 @@ class AtomTransformer(Transformer):
 
     def exp_not(self, value): return NegationOp(value[1])
 
-    def var(self, value):
-        val = Variable(value[0])
-        self.prop_vars.append(val) if val not in self.prop_vars else self.prop_vars
-        return val
-
     def true(self, value): return TrueProp()
 
     def false(self, value): return FalseProp()
+
+    def paren(self, value): return value[1]
+
+    def var(self, value):
+        return self.interp[value[0]]

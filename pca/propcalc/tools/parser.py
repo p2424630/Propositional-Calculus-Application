@@ -1,8 +1,8 @@
 # @Author: GKarseras
 # @Date:   17 Nov 2020 10:30
 
-from lark import Lark
-
+from lark import Lark, Transformer, Token
+from typing import Dict
 
 GRAMMAR = '''
              start: exp_iff
@@ -33,3 +33,20 @@ GRAMMAR = '''
          '''
 
 PARSER = Lark(GRAMMAR, parser='lalr')
+
+
+class SimpleTransformer(Transformer):
+
+    def __init__(self):
+        super().__init__()
+        self._prop_vars = []
+
+    def var(self, value):
+        val = value[0]
+        if val not in self._prop_vars:
+            self._prop_vars.append(val)
+        return val
+
+    @property
+    def prop_vars(self):
+        return self._prop_vars

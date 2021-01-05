@@ -5,7 +5,7 @@
 from lark import Tree, Token
 from pytest_mock import mocker
 
-from pca.propcalc.tools.grammar import PARSER
+from pca.propcalc.tools.parser import PARSER
 from pca.propcalc.tools.prop import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp, ImplicationOp
 from pca.propcalc.tools.prop import NegationOp, TrueProp, Variable, AtomTransformer
 
