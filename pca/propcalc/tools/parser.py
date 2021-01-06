@@ -5,17 +5,16 @@ from lark import Lark, Transformer
 
 
 GRAMMAR = '''
-             ?start: exp_iff
              ?exp_iff: exp_imp (OP_EQUIVALENCE exp_imp)*
              ?exp_imp: exp_or (OP_IMPLICATION exp_or)*
              ?exp_or: exp_and (OP_DISJUNCTION exp_and)*
              ?exp_and: exp_not (OP_CONJUNCTION exp_not)*
              ?exp_not: OP_NEGATION exp_not                  -> exp_not
                      | atom
-             atom: VAR                                      -> var
-                 | TRUE                                     -> bool_true
-                 | FALSE                                    -> bool_false
-                 | "(" exp_iff ")"                          -> paren
+             atom: VAR                                      -> atom_var
+                 | TRUE                                     -> atom_true
+                 | FALSE                                    -> atom_false
+                 | "(" exp_iff ")"                          -> atom_paren
             
              VAR: /[A-Z]+/
              TRUE: "true" | "top" | "t" | "\u22a4"
@@ -30,7 +29,7 @@ GRAMMAR = '''
              %ignore WS
          '''
 
-PARSER = Lark(GRAMMAR, parser='lalr')
+PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff')
 
 
 class SimpleTransformer(Transformer):
@@ -39,7 +38,7 @@ class SimpleTransformer(Transformer):
         super().__init__()
         self._prop_vars = []
 
-    def var(self, value):
+    def atom_var(self, value):
         val = value[0]
         if val not in self._prop_vars:
             self._prop_vars.append(val)

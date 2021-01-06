@@ -7,11 +7,13 @@ from lark import Transformer
 
 class Proposition:
 
+    _children = []
+
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
     # def __or__(self, other):
-    #     if isinstance(self, (bool, TrueProp, FalseProp)) and isinstance(other, (bool, TrueProp, FalseProp)):
+    #     if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
     #         return self or other
     #     else:
     #         return DisjunctionOp(self, other)
@@ -20,7 +22,7 @@ class Proposition:
     #     return self.__or__(other)
     #
     # def __and__(self, other):
-    #     if isinstance(self, (bool, TrueProp, FalseProp)) and isinstance(other, (bool, TrueProp, FalseProp)):
+    #     if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
     #         return self and other
     #     else:
     #         return ConjunctionOp(self, other)
@@ -32,7 +34,6 @@ class Proposition:
 
 
 class Variable(Proposition):
-    __slots__ = 'name'
 
     def __init__(self, name: str):
         self.name = str(name)
@@ -70,7 +71,6 @@ class FalseProp(Proposition):
 
 
 class UnaryOp(Operation, ABC):
-    __slots__ = 'prop'
 
     def __init__(self, prop) -> None:
         self.prop = prop
@@ -83,7 +83,6 @@ class UnaryOp(Operation, ABC):
 
 
 class BinaryOp(Operation, ABC):
-    __slots__ = ('prop_l', 'prop_r')
 
     def __init__(self, prop_l, prop_r) -> None:
         self.prop_l = prop_l
@@ -117,13 +116,13 @@ class ConjunctionOp(BinaryOp):
 class ImplicationOp(BinaryOp):
 
     def eval(self):
-        return not self.prop_l or self.prop_r
+        return (not self.prop_l) or self.prop_r
 
 
 class EquivalenceOp(BinaryOp):
 
     def eval(self):
-        return (self.prop_l or not self.prop_r) and (not self.prop_l or self.prop_r)
+        return (self.prop_l or (not self.prop_r)) and ((not self.prop_l) or self.prop_r)
 
 
 class AtomTransformer(Transformer):
@@ -142,20 +141,20 @@ class AtomTransformer(Transformer):
         return DisjunctionOp(value[0], value[2])
 
     def exp_and(self, value):
-        return ConjunctionOp(value[0], value[2])
+        return ConjunctionOp(value[0], ConjunctionOp(value[2], value[4]))
 
     def exp_not(self, value):
         return NegationOp(value[1])
 
-    def bool_true(self, value):
+    def atom_true(self, value):
         return TrueProp()
 
-    def bool_false(self, value):
+    def atom_false(self, value):
         return FalseProp()
 
-    def paren(self, value):
+    def atom_paren(self, value):
         return value[0]
 
-    def var(self, value):
+    def atom_var(self, value):
         return self.interp[value[0]]
 

@@ -27,11 +27,12 @@ class InitProp:
             raise ValueError('Number of variables must be at least 1')
         if vars_len > max_vars:
             raise ValueError(f'Variable length {vars_len} exceeded the allowed {max_vars}')
-        combs = list(product([FalseProp, TrueProp], repeat=vars_len))
+        combs = list(product([FalseProp(), TrueProp()], repeat=vars_len))
+        all_interp = []
         for comb in combs:
             interp = dict(zip(prop_vars, comb))
             interp_prop = AtomTransformer(interp).transform(self._parsed)
-            # print(replaced_vars[0].eval()) # TODO: Needs Fixing, should eval depth first
+            all_interp.append(interp_prop)
 
     def satisfiable(self):
         # return any(permutations{True, False} Proposition == True)
