@@ -10,23 +10,25 @@ class Proposition:
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
-    def __or__(self, other):
-        if isinstance(self, (bool, TrueProp, FalseProp)) and isinstance(other, (bool, TrueProp, FalseProp)):
-            return self or other
-        else:
-            return DisjunctionOp(self, other)
-
-    def __and__(self, other):
-        if isinstance(self, (bool, TrueProp, FalseProp)) and isinstance(other, (bool, TrueProp, FalseProp)):
-            print('inside')
-            return self and other
-        else:
-            return ConjunctionOp(self, other)
-
-    def __invert__(self):
-        if isinstance(self, (bool, TrueProp, FalseProp)):
-            return not self
-        return NegationOp(self)
+    # def __or__(self, other):
+    #     if isinstance(self, (bool, TrueProp, FalseProp)) and isinstance(other, (bool, TrueProp, FalseProp)):
+    #         return self or other
+    #     else:
+    #         return DisjunctionOp(self, other)
+    #
+    # def __ror__(self, other):
+    #     return self.__or__(other)
+    #
+    # def __and__(self, other):
+    #     if isinstance(self, (bool, TrueProp, FalseProp)) and isinstance(other, (bool, TrueProp, FalseProp)):
+    #         return self and other
+    #     else:
+    #         return ConjunctionOp(self, other)
+    #
+    # def __invert__(self):
+    #     if isinstance(self, (bool, TrueProp, FalseProp)):
+    #         return not self
+    #     return NegationOp(self)
 
 
 class Variable(Proposition):
@@ -45,7 +47,7 @@ class Variable(Proposition):
 class Operation(Proposition):
 
     @abstractmethod
-    def eval(self, *args):
+    def eval(self):
         raise NotImplementedError
 
 
@@ -57,9 +59,6 @@ class TrueProp(Proposition):
     def __bool__(self) -> bool:
         return True
 
-    def eval(self) -> bool:
-        return True
-
 
 class FalseProp(Proposition):
 
@@ -69,14 +68,11 @@ class FalseProp(Proposition):
     def __bool__(self) -> bool:
         return False
 
-    def eval(self) -> bool:
-        return False
-
 
 class UnaryOp(Operation, ABC):
     __slots__ = 'prop'
 
-    def __init__(self, prop: Proposition) -> None:
+    def __init__(self, prop) -> None:
         self.prop = prop
 
     def __repr__(self) -> str:
@@ -89,7 +85,7 @@ class UnaryOp(Operation, ABC):
 class BinaryOp(Operation, ABC):
     __slots__ = ('prop_l', 'prop_r')
 
-    def __init__(self, prop_l: Proposition, prop_r: Proposition) -> None:
+    def __init__(self, prop_l, prop_r) -> None:
         self.prop_l = prop_l
         self.prop_r = prop_r
 
@@ -103,31 +99,31 @@ class BinaryOp(Operation, ABC):
 class NegationOp(UnaryOp):
 
     def eval(self):
-        return ~ self.prop
+        return not self.prop
 
 
 class DisjunctionOp(BinaryOp):
 
     def eval(self):
-        return self.prop_l | self.prop_r
+        return self.prop_l or self.prop_r
 
 
 class ConjunctionOp(BinaryOp):
 
     def eval(self):
-        return self.prop_l & self.prop_r
+        return self.prop_l and self.prop_r
 
 
 class ImplicationOp(BinaryOp):
 
     def eval(self):
-        return (~self.prop_l) | self.prop_r
+        return not self.prop_l or self.prop_r
 
 
 class EquivalenceOp(BinaryOp):
 
     def eval(self):
-        return (self.prop_l | (~self.prop_r)) & ((~self.prop_l) | self.prop_r)
+        return (self.prop_l or not self.prop_r) and (not self.prop_l or self.prop_r)
 
 
 class AtomTransformer(Transformer):
@@ -136,23 +132,27 @@ class AtomTransformer(Transformer):
         super().__init__()
         self.interp = interp
 
-    def start(self, value): return value
+    def exp_iff(self, value):
+        return EquivalenceOp(value[0], value[2])
 
-    def exp_iff(self, value): return EquivalenceOp(value[0], value[2])
+    def exp_imp(self, value):
+        return ImplicationOp(value[0], value[2])
 
-    def exp_imp(self, value): return ImplicationOp(value[0], value[2])
+    def exp_or(self, value):
+        return DisjunctionOp(value[0], value[2])
 
-    def exp_or(self, value): return DisjunctionOp(value[0], value[2])
+    def exp_and(self, value):
+        return ConjunctionOp(value[0], value[2])
 
-    def exp_and(self, value): return ConjunctionOp(value[0], value[2])
+    def exp_not(self, value):
+        return NegationOp(value[1])
 
-    def exp_not(self, value): return NegationOp(value[1])
+    def bool_true(self, value):
+        return TrueProp()
 
-    def true(self, value): return TrueProp()
-
-    def false(self, value): return FalseProp()
-
-    def paren(self, value): return value[1]
+    def bool_false(self, value):
+        return FalseProp()
 
     def var(self, value):
         return self.interp[value[0]]
+

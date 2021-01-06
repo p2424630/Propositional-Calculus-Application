@@ -7,7 +7,7 @@ from itertools import product
 from lark import Token
 import numpy as np
 
-from pca.propcalc.tools.prop import AtomTransformer
+from pca.propcalc.tools.prop import AtomTransformer, TrueProp, FalseProp
 from pca.propcalc.tools.parser import PARSER, SimpleTransformer
 
 
@@ -27,7 +27,7 @@ class InitProp:
             raise ValueError('Number of variables must be at least 1')
         if vars_len > max_vars:
             raise ValueError(f'Variable length {vars_len} exceeded the allowed {max_vars}')
-        combs = list(product([False, True], repeat=vars_len))
+        combs = list(product([FalseProp, TrueProp], repeat=vars_len))
         for comb in combs:
             interp = dict(zip(prop_vars, comb))
             interp_prop = AtomTransformer(interp).transform(self._parsed)
