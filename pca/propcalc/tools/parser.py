@@ -42,7 +42,7 @@ class SimpleTransformer(Transformer):
         val = value[0]
         if val not in self._prop_vars:
             self._prop_vars.append(val)
-        return val
+        return value
 
     @property
     def prop_vars(self):

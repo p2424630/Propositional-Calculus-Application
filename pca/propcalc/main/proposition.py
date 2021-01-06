@@ -4,10 +4,7 @@
 from __future__ import annotations
 from itertools import product
 
-from lark import Token
-import numpy as np
-
-from pca.propcalc.tools.prop import AtomTransformer, TrueProp, FalseProp
+from pca.propcalc.tools.prop import AtomTransformer, TrueProp, FalseProp, NegationOp, get_ev
 from pca.propcalc.tools.parser import PARSER, SimpleTransformer
 
 
@@ -32,7 +29,7 @@ class InitProp:
         for comb in combs:
             interp = dict(zip(prop_vars, comb))
             interp_prop = AtomTransformer(interp).transform(self._parsed)
-            all_interp.append(interp_prop)
+            all_interp.append(eval_prop(interp_prop))
 
     def satisfiable(self):
         # return any(permutations{True, False} Proposition == True)
@@ -45,3 +42,19 @@ class InitProp:
     def contradiction(self):
         # return all(permutations{True, False} Proposition == False)
         pass
+
+
+def eval_prop(op):
+    if isinstance(op, (bool, TrueProp, FalseProp)):
+        return op
+    if isinstance(op, NegationOp):
+        if isinstance(op.prop, (bool, TrueProp, FalseProp)):
+            return op.eval()
+        return not eval_prop(op.prop)
+    if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [op.prop_l, op.prop_r]):
+        return op.eval()
+    if isinstance(op.prop_l, (bool, TrueProp, FalseProp)):
+        return get_ev(op.prop_l, eval_prop(op.prop_r))[op.__class__]
+    if isinstance(op.prop_r, (bool, TrueProp, FalseProp)):
+        return get_ev(eval_prop(op.prop_l), op.prop_r)[op.__class__]
+    return get_ev(eval_prop(op.prop_l), eval_prop(op.prop_r))[op.__class__]

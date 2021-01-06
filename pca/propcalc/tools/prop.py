@@ -4,33 +4,42 @@
 from abc import ABC, abstractmethod
 from lark import Transformer
 
+from operator import not_, and_, or_
+
 
 class Proposition:
-
-    _children = []
 
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
-    # def __or__(self, other):
-    #     if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
-    #         return self or other
-    #     else:
-    #         return DisjunctionOp(self, other)
-    #
-    # def __ror__(self, other):
-    #     return self.__or__(other)
-    #
-    # def __and__(self, other):
-    #     if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
-    #         return self and other
-    #     else:
-    #         return ConjunctionOp(self, other)
-    #
-    # def __invert__(self):
-    #     if isinstance(self, (bool, TrueProp, FalseProp)):
-    #         return not self
-    #     return NegationOp(self)
+    def __or__(self, other):
+        if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
+            return self or other
+        else:
+            return DisjunctionOp(self, other)
+
+    def __ror__(self, other):
+        return self.__or__(other)
+
+    def __ior__(self, other):
+        return self.__or__(other)
+
+    def __and__(self, other):
+        if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
+            return self and other
+        else:
+            return ConjunctionOp(self, other)
+
+    def __rand__(self, other):
+        return self.__and__(other)
+
+    def __iand__(self, other):
+        return self.__and__(other)
+
+    def __invert__(self):
+        if isinstance(self, (bool, TrueProp, FalseProp)):
+            return not self
+        return NegationOp(self)
 
 
 class Variable(Proposition):
@@ -98,31 +107,31 @@ class BinaryOp(Operation, ABC):
 class NegationOp(UnaryOp):
 
     def eval(self):
-        return not self.prop
+        return not_(self.prop)
 
 
 class DisjunctionOp(BinaryOp):
 
     def eval(self):
-        return self.prop_l or self.prop_r
+        return get_ev(self.prop_l, self.prop_r)[DisjunctionOp]
 
 
 class ConjunctionOp(BinaryOp):
 
     def eval(self):
-        return self.prop_l and self.prop_r
+        return get_ev(self.prop_l, self.prop_r)[ConjunctionOp]
 
 
 class ImplicationOp(BinaryOp):
 
     def eval(self):
-        return (not self.prop_l) or self.prop_r
+        return get_ev(self.prop_l, self.prop_r)[ImplicationOp]
 
 
 class EquivalenceOp(BinaryOp):
 
     def eval(self):
-        return (self.prop_l or (not self.prop_r)) and ((not self.prop_l) or self.prop_r)
+        return get_ev(self.prop_l, self.prop_r)[EquivalenceOp]
 
 
 class AtomTransformer(Transformer):
@@ -141,7 +150,7 @@ class AtomTransformer(Transformer):
         return DisjunctionOp(value[0], value[2])
 
     def exp_and(self, value):
-        return ConjunctionOp(value[0], ConjunctionOp(value[2], value[4]))
+        return ConjunctionOp(value[0], value[2])
 
     def exp_not(self, value):
         return NegationOp(value[1])
@@ -158,3 +167,11 @@ class AtomTransformer(Transformer):
     def atom_var(self, value):
         return self.interp[value[0]]
 
+
+def get_ev(left, right):
+    return {
+        ConjunctionOp: and_(left, right),
+        DisjunctionOp: or_(left, right),
+        ImplicationOp: or_(not_(left), right),
+        EquivalenceOp: and_(or_(left, not_(right)), or_(not_(left), right))
+    }
