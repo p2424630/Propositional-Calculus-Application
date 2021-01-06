@@ -15,7 +15,7 @@ GRAMMAR = '''
              atom: VAR                                      -> var
                  | TRUE                                     -> bool_true
                  | FALSE                                    -> bool_false
-                 | "(" exp_iff ")"
+                 | "(" exp_iff ")"                          -> paren
             
              VAR: /[A-Z]+/
              TRUE: "true" | "top" | "t" | "\u22a4"

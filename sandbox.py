@@ -21,7 +21,7 @@ from pca.propcalc.tools.prop import *
 
 # a = parseANDtrans('A and B')
 # a = DisjunctionOp(Variable('A'), Variable('B'))
-a = InitProp('not(A or B and C)')
+a = InitProp('not((A or B and C) or C)')
 l = []
 tr = SimpleTransformer()
 tr.transform(a._parsed)

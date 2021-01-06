@@ -153,6 +153,9 @@ class AtomTransformer(Transformer):
     def bool_false(self, value):
         return FalseProp()
 
+    def paren(self, value):
+        return value[0]
+
     def var(self, value):
         return self.interp[value[0]]
 
