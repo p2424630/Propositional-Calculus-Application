@@ -11,5 +11,5 @@ class TestParser:
 
     def test_simple_var(self):
         a = PARSER.parse('P')
-        to_assert = Tree('start', [Tree('var', [Token('VAR', 'P')])])
+        to_assert = Tree('atom_var', [Token('VAR', 'P')])
         assert a == to_assert

@@ -5,21 +5,22 @@ from __future__ import annotations
 from itertools import product
 
 from pca.propcalc.tools.prop import AtomTransformer, NegationOp, get_binary_eval
-from pca.propcalc.tools.parser import PARSER, GetVarsTransformer
+from pca.propcalc.tools.parser import PARSER, VarsVisitor
 
 
 class InitProp:
     __slots__ = ('_prop', '_parsed')
 
-    def __init__(self, prop: str):
+    def __init__(self, prop: str) -> None:
         self._prop = prop
         self._parsed = PARSER.parse(prop)
 
     def _get_vars(self):
-        tr = GetVarsTransformer()
+        tr = VarsVisitor()
         tr.visit(self._parsed)
         return sorted(tr.prop_vars)
 
+    # TODO: Modify to accept bool expression.
     def _get_combs(self, max_vars):
         prop_vars = self._get_vars()
         vars_len = len(prop_vars)

@@ -32,7 +32,7 @@ GRAMMAR = '''
 PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff')
 
 
-class GetVarsTransformer(Visitor):
+class VarsVisitor(Visitor):
 
     def __init__(self):
         super().__init__()

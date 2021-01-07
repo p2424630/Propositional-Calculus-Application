@@ -5,12 +5,13 @@ from pca.propcalc.main.proposition import InitProp
 import pytest
 
 
-# TODO: Implement mock results.
 class TestProposition:
 
     def test_simple_props(self):
         to_test = [({'A': False}, False), ({'A': True}, True)]
         assert InitProp('A').build_interp() == to_test
+        to_test = [({'A': False}, True), ({'A': True}, False)]
+        assert InitProp('not not not A').build_interp() == to_test
 
     def test_disjunction(self):
         to_test = [({'A': False, 'B': False}, False),
@@ -18,6 +19,9 @@ class TestProposition:
                    ({'A': True, 'B': False}, True),
                    ({'A': True, 'B': True}, True)]
         assert InitProp('A or B').build_interp() == to_test
+        to_test = [({'A': False}, True),
+                   ({'A': True}, True)]
+        assert InitProp('A or true').build_interp() == to_test
 
     def test_conjunction(self):
         to_test = [({'A': False, 'B': False}, False),
@@ -25,6 +29,9 @@ class TestProposition:
                    ({'A': True, 'B': False}, False),
                    ({'A': True, 'B': True}, True)]
         assert InitProp('A and B').build_interp() == to_test
+        to_test = [({'A': False}, False),
+                   ({'A': True}, True)]
+        assert InitProp('A and true').build_interp() == to_test
 
     def test_sat(self):
         assert InitProp('A').satisfiable()

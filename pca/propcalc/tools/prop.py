@@ -118,40 +118,41 @@ class BinaryOp(Operation):
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__) and self.prop_l == other.prop_l and self.prop_r == other.prop_r
 
-    def eval(self):
+    def eval(self) -> bool:
         return get_binary_eval(self.op, self.prop_l, self.prop_r)
 
 
 class NegationOp(UnaryOp):
 
-    def eval(self):
+    def eval(self) -> bool:
         return not self.prop
 
 
 class DisjunctionOp(BinaryOp):
 
-    def __init__(self, prop_l, prop_r):
+    def __init__(self, prop_l, prop_r) -> None:
         super().__init__(DisjunctionOp, prop_l, prop_r)
 
 
 class ConjunctionOp(BinaryOp):
 
-    def __init__(self, prop_l, prop_r):
+    def __init__(self, prop_l, prop_r) -> None:
         super().__init__(ConjunctionOp, prop_l, prop_r)
 
 
 class ImplicationOp(BinaryOp):
 
-    def __init__(self, prop_l, prop_r):
+    def __init__(self, prop_l, prop_r) -> None:
         super().__init__(ImplicationOp, prop_l, prop_r)
 
 
 class EquivalenceOp(BinaryOp):
 
-    def __init__(self, prop_l, prop_r):
+    def __init__(self, prop_l, prop_r) -> None:
         super().__init__(EquivalenceOp, prop_l, prop_r)
 
 
+# TODO: Fix value unpacking.
 class AtomTransformer(Transformer):
 
     def __init__(self, interp):
