@@ -105,10 +105,9 @@ class UnaryOp(Operation, ABC):
         return isinstance(other, self.__class__) and self.prop == other.prop
 
 
-class BinaryOp(Operation):
+class BinaryOp(Operation, ABC):
 
-    def __init__(self, op, prop_l, prop_r) -> None:
-        self.op = op
+    def __init__(self, prop_l, prop_r) -> None:
         self.prop_l = prop_l
         self.prop_r = prop_r
 
@@ -117,9 +116,6 @@ class BinaryOp(Operation):
 
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__) and self.prop_l == other.prop_l and self.prop_r == other.prop_r
-
-    def eval(self) -> bool:
-        return get_binary_eval(self.op, self.prop_l, self.prop_r)
 
 
 class NegationOp(UnaryOp):
@@ -130,26 +126,26 @@ class NegationOp(UnaryOp):
 
 class DisjunctionOp(BinaryOp):
 
-    def __init__(self, prop_l, prop_r) -> None:
-        super().__init__(DisjunctionOp, prop_l, prop_r)
+    def eval(self) -> bool:
+        return self.prop_l or self.prop_r
 
 
 class ConjunctionOp(BinaryOp):
 
-    def __init__(self, prop_l, prop_r) -> None:
-        super().__init__(ConjunctionOp, prop_l, prop_r)
+    def eval(self) -> bool:
+        return self.prop_l and self.prop_r
 
 
 class ImplicationOp(BinaryOp):
 
-    def __init__(self, prop_l, prop_r) -> None:
-        super().__init__(ImplicationOp, prop_l, prop_r)
+    def eval(self) -> bool:
+        return (not self.prop_l) or self.prop_r
 
 
 class EquivalenceOp(BinaryOp):
 
-    def __init__(self, prop_l, prop_r) -> None:
-        super().__init__(EquivalenceOp, prop_l, prop_r)
+    def eval(self) -> bool:
+        return (self.prop_l or (not self.prop_r)) and ((not self.prop_l) or self.prop_r)
 
 
 # TODO: Fix value unpacking.
@@ -185,12 +181,3 @@ class AtomTransformer(Transformer):
 
     def atom_var(self, value):
         return self.interp[value[0]]
-
-
-def get_binary_eval(op, left, right):
-    return {
-        ConjunctionOp: left and right,
-        DisjunctionOp: left or right,
-        ImplicationOp: (not left) or right,
-        EquivalenceOp: (left or (not right)) and ((not left) or right)
-    }[op]

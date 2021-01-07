@@ -4,7 +4,7 @@
 from __future__ import annotations
 from itertools import product
 
-from pca.propcalc.tools.prop import AtomTransformer, NegationOp, get_binary_eval
+from pca.propcalc.tools.prop import AtomTransformer, NegationOp
 from pca.propcalc.tools.parser import PARSER, VarsVisitor
 
 
@@ -76,7 +76,7 @@ def eval_prop(op):
     if all(isinstance(prop, bool) for prop in [op.prop_l, op.prop_r]):
         return op.eval()
     if isinstance(op.prop_l, bool):
-        return get_binary_eval(op.__class__, op.prop_l, eval_prop(op.prop_r))
+        return op.__class__(op.prop_l, eval_prop(op.prop_r)).eval()
     if isinstance(op.prop_r, bool):
-        return get_binary_eval(op.__class__, eval_prop(op.prop_l), op.prop_r)
-    return get_binary_eval(op.__class__, eval_prop(op.prop_l), eval_prop(op.prop_r))
+        return op.__class__(eval_prop(op.prop_l), op.prop_r).eval()
+    return op.__class__(eval_prop(op.prop_l), eval_prop(op.prop_r)).eval()
