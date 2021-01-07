@@ -11,6 +11,9 @@ from pca.propcalc.tools.parser import PARSER, VarsVisitor
 class InitProp:
     __slots__ = ('_prop', '_parsed')
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self._parsed == other._parsed
+
     def __init__(self, prop: str) -> None:
         self._prop = prop
         self._parsed = PARSER.parse(prop)
@@ -38,7 +41,7 @@ class InitProp:
             all_interp.append((interp, eval_prop(interp_prop)))
         return all_interp
 
-    # TODO: Implement better & faster SAT solver.
+    # TODO: Implement better SAT solver.
     def satisfiable(self):
         for i in self.build_interp():
             for j in i:

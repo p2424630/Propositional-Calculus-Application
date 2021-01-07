@@ -47,4 +47,3 @@ class VarsVisitor(Visitor):
     @property
     def prop_vars(self):
         return self._prop_vars
-
