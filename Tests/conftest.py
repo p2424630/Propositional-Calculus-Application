@@ -1,9 +1,9 @@
 import pytest
-from pca.propcalc.tools.prop import *
+from pca.propcalc.main.proposition import InitProp
 
 
 @pytest.fixture
-def simple_propositions():
-    a = Proposition()
-    b = Proposition()
-    return a, b
+def propositions():
+    return {
+        'de_morgan': InitProp('(not(A and B)) ⇔ ((not A) or (not B))')
+    }

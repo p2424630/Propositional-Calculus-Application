@@ -50,16 +50,16 @@ class Proposition:
     # def __xor__(self):
 
 
-class Variable(Proposition):
-
-    def __init__(self, name: str):
-        self.name = str(name)
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({repr(self.name)})'
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.name == other.name
+# class Variable(Proposition):
+#
+#     def __init__(self, name: str):
+#         self.name = str(name)
+#
+#     def __repr__(self):
+#         return f'{self.__class__.__name__}({repr(self.name)})'
+#
+#     def __eq__(self, other):
+#         return isinstance(other, self.__class__) and self.name == other.name
 
 
 class Operation(Proposition):
@@ -69,34 +69,21 @@ class Operation(Proposition):
         raise NotImplementedError
 
 
-class PropBool(Proposition):
-
-    def __init__(self, n):
-        self._n = n
-
-    def __repr__(self):
-        return str(self._n)
-
-    def __bool__(self) -> bool:
-        return bool(self._n)
-
-
-class TrueProp(PropBool):
-
-    def __init__(self):
-        super().__init__(True)
+# class PropBool(Proposition):
+#
+#     def __init__(self, n):
+#         self._n = n
+#
+#     def __repr__(self):
+#         return str(self._n)
+#
+#     def __bool__(self) -> bool:
+#         return bool(self._n)
 
 
-class FalseProp(PropBool):
+class UnaryOp(Operation, ABC):
 
-    def __init__(self):
-        super().__init__(False)
-
-
-class UnaryOp(Operation):
-
-    def __init__(self, op, prop) -> None:
-        self.op = op
+    def __init__(self, prop) -> None:
         self.prop = prop
 
     def __repr__(self) -> str:
@@ -104,9 +91,6 @@ class UnaryOp(Operation):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.prop == other.prop
-
-    def eval(self):
-        return get_unary_eval(self.op, self.prop)
 
 
 class BinaryOp(Operation):
@@ -128,32 +112,32 @@ class BinaryOp(Operation):
 
 class NegationOp(UnaryOp):
 
-    def __init__(self, prop):
-        super().__init__(self.__class__, prop)
+    def eval(self):
+        return not self.prop
 
 
 class DisjunctionOp(BinaryOp):
 
     def __init__(self, prop_l, prop_r):
-        super().__init__(self.__class__, prop_l, prop_r)
+        super().__init__(DisjunctionOp, prop_l, prop_r)
 
 
 class ConjunctionOp(BinaryOp):
 
     def __init__(self, prop_l, prop_r):
-        super().__init__(self.__class__, prop_l, prop_r)
+        super().__init__(ConjunctionOp, prop_l, prop_r)
 
 
 class ImplicationOp(BinaryOp):
 
     def __init__(self, prop_l, prop_r):
-        super().__init__(self.__class__, prop_l, prop_r)
+        super().__init__(ImplicationOp, prop_l, prop_r)
 
 
 class EquivalenceOp(BinaryOp):
 
     def __init__(self, prop_l, prop_r):
-        super().__init__(self.__class__, prop_l, prop_r)
+        super().__init__(EquivalenceOp, prop_l, prop_r)
 
 
 class AtomTransformer(Transformer):
@@ -178,10 +162,10 @@ class AtomTransformer(Transformer):
         return NegationOp(value[1])
 
     def atom_true(self, value):
-        return TrueProp()
+        return True
 
     def atom_false(self, value):
-        return FalseProp()
+        return False
 
     def atom_paren(self, value):
         return value[0]
@@ -190,16 +174,10 @@ class AtomTransformer(Transformer):
         return self.interp[value[0]]
 
 
-def get_unary_eval(op, prop):
-    return {
-        NegationOp: PropBool(not prop)
-    }[op]
-
-
 def get_binary_eval(op, left, right):
     return {
-        ConjunctionOp: PropBool(left and right),
-        DisjunctionOp: PropBool(left or right),
-        ImplicationOp: PropBool((not left) or right),
-        EquivalenceOp: PropBool((left or (not right)) and ((not left) or right))
+        ConjunctionOp: left and right,
+        DisjunctionOp: left or right,
+        ImplicationOp: (not left) or right,
+        EquivalenceOp: (left or (not right)) and ((not left) or right)
     }[op]

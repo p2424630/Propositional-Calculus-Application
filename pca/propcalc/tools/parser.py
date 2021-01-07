@@ -39,7 +39,7 @@ class SimpleTransformer(Transformer):
         self._prop_vars = []
 
     def atom_var(self, value):
-        val = value[0]
+        val = value[0].value
         if val not in self._prop_vars:
             self._prop_vars.append(val)
         return value
