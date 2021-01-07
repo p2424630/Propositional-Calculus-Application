@@ -1,7 +1,7 @@
 # @Author: GKarseras
 # @Date:   17 Nov 2020 10:30
 
-from lark import Lark, Transformer
+from lark import Lark, Visitor
 
 
 GRAMMAR = '''
@@ -32,18 +32,19 @@ GRAMMAR = '''
 PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff')
 
 
-class SimpleTransformer(Transformer):
+class GetVarsTransformer(Visitor):
 
     def __init__(self):
         super().__init__()
         self._prop_vars = []
 
-    def atom_var(self, value):
-        val = value[0].value
+    def atom_var(self, tree):
+        assert tree.data == 'atom_var'
+        val = tree.children[0].value
         if val not in self._prop_vars:
             self._prop_vars.append(val)
-        return value
 
     @property
     def prop_vars(self):
         return self._prop_vars
+

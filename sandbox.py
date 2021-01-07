@@ -5,10 +5,7 @@ from pca.propcalc.main.proposition import *
 from pca.propcalc.tools.prop import *
 
 
-a = InitProp('not( (A and B) ⇔ ((not A) or (not B)))')
-print(a.build_interp())
-
-
+a = InitProp('not A or B implies C')
 # l = []
 # tr = SimpleTransformer()
 # tr.transform(a._parsed)

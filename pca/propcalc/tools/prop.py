@@ -79,6 +79,18 @@ class Operation(Proposition):
 #
 #     def __bool__(self) -> bool:
 #         return bool(self._n)
+#
+#
+# class TrueProp(PropBool):
+#
+#     def __init__(self):
+#         super().__init__(True)
+#
+#
+# class FalseProp(PropBool):
+#
+#     def __init__(self):
+#         super().__init__(False)
 
 
 class UnaryOp(Operation, ABC):

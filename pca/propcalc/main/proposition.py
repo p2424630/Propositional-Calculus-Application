@@ -5,7 +5,7 @@ from __future__ import annotations
 from itertools import product
 
 from pca.propcalc.tools.prop import AtomTransformer, NegationOp, get_binary_eval
-from pca.propcalc.tools.parser import PARSER, SimpleTransformer
+from pca.propcalc.tools.parser import PARSER, GetVarsTransformer
 
 
 class InitProp:
@@ -16,9 +16,9 @@ class InitProp:
         self._parsed = PARSER.parse(prop)
 
     def _get_vars(self):
-        tr = SimpleTransformer()
-        tr.transform(self._parsed)
-        return tr.prop_vars
+        tr = GetVarsTransformer()
+        tr.visit(self._parsed)
+        return sorted(tr.prop_vars)
 
     def _get_combs(self, max_vars):
         prop_vars = self._get_vars()
