@@ -153,7 +153,7 @@ class AtomTransformer(Transformer):
 
     def __init__(self, interp):
         super().__init__()
-        self.interp = interp
+        self._interp = interp
 
     def exp_iff(self, value):
         return EquivalenceOp(value[0], value[2])
@@ -180,4 +180,4 @@ class AtomTransformer(Transformer):
         return value[0]
 
     def atom_var(self, value):
-        return self.interp[value[0]]
+        return self._interp[value[0]]

@@ -4,7 +4,7 @@
 from __future__ import annotations
 from itertools import product
 
-from pca.propcalc.tools.prop import AtomTransformer, NegationOp
+from pca.propcalc.tools.prop import AtomTransformer, BinaryOp, UnaryOp
 from pca.propcalc.tools.parser import PARSER, VarsVisitor
 
 
@@ -34,9 +34,10 @@ class InitProp:
 
     def build_interp(self, max_vars: int = 5):
         combs = self._get_combs(max_vars)
+        prop_vars = self._get_vars()
         all_interp = []
         for comb in combs:
-            interp = dict(zip(self._get_vars(), comb))
+            interp = dict(zip(prop_vars, comb))
             interp_prop = AtomTransformer(interp).transform(self._parsed)
             all_interp.append((interp, eval_prop(interp_prop)))
         return all_interp
@@ -69,14 +70,17 @@ class InitProp:
 def eval_prop(op):
     if isinstance(op, bool):
         return op
-    if isinstance(op, NegationOp):
+    elif isinstance(op, UnaryOp):
         if isinstance(op.prop, bool):
             return op.eval()
-        return not eval_prop(op.prop)
-    if all(isinstance(prop, bool) for prop in [op.prop_l, op.prop_r]):
-        return op.eval()
-    if isinstance(op.prop_l, bool):
-        return op.__class__(op.prop_l, eval_prop(op.prop_r)).eval()
-    if isinstance(op.prop_r, bool):
-        return op.__class__(eval_prop(op.prop_l), op.prop_r).eval()
-    return op.__class__(eval_prop(op.prop_l), eval_prop(op.prop_r)).eval()
+        return op.__class__(eval_prop(op.prop)).eval()
+    elif isinstance(op, BinaryOp):
+        if all(isinstance(prop, bool) for prop in [op.prop_l, op.prop_r]):
+            return op.eval()
+        if isinstance(op.prop_l, bool):
+            return op.__class__(op.prop_l, eval_prop(op.prop_r)).eval()
+        if isinstance(op.prop_r, bool):
+            return op.__class__(eval_prop(op.prop_l), op.prop_r).eval()
+        return op.__class__(eval_prop(op.prop_l), eval_prop(op.prop_r)).eval()
+    else:
+        raise TypeError({type(op)})

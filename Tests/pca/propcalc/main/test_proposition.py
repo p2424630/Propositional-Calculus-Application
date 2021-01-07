@@ -11,7 +11,7 @@ class TestProposition:
         to_test = [({'A': False}, False), ({'A': True}, True)]
         assert InitProp('A').build_interp() == to_test
         to_test = [({'A': False}, True), ({'A': True}, False)]
-        assert InitProp('not not not A').build_interp() == to_test
+        assert InitProp('not (not (not A))').build_interp() == to_test
 
     def test_disjunction(self):
         to_test = [({'A': False, 'B': False}, False),
