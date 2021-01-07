@@ -62,4 +62,3 @@ class TestProposition:
 
     def test_contrapositive(self):
         assert InitProp('C ⇒ (A ∧ B)').build_interp() == InitProp('(C ⇒ A) ∧ (C ⇒ B)').build_interp()
-

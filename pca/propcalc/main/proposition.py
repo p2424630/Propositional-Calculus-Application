@@ -20,7 +20,6 @@ class InitProp:
         tr.visit(self._parsed)
         return sorted(tr.prop_vars)
 
-    # TODO: Modify to accept bool expression.
     def _get_combs(self, max_vars):
         prop_vars = self._get_vars()
         vars_len = len(prop_vars)
@@ -56,6 +55,12 @@ class InitProp:
 
     def contradiction(self):
         return not self.satisfiable()
+
+    def cnf(self):
+        raise NotImplementedError
+
+    def dnf(self):
+        raise NotImplementedError
 
 
 def eval_prop(op):
