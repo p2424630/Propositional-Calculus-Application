@@ -12,34 +12,42 @@ class Proposition:
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
-    def __or__(self, other):
-        if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
-            return self or other
-        else:
-            return DisjunctionOp(self, other)
+    # def __or__(self, other):
+    #     if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
+    #         return self or other
+    #     else:
+    #         return DisjunctionOp(self, other)
+    #
+    # def __ror__(self, other):
+    #     return self.__or__(other)
+    #
+    # def __ior__(self, other):
+    #     return self.__or__(other)
+    #
+    # def __and__(self, other):
+    #     if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
+    #         return self and other
+    #     else:
+    #         return ConjunctionOp(self, other)
+    #
+    # def __rand__(self, other):
+    #     return self.__and__(other)
+    #
+    # def __iand__(self, other):
+    #     return self.__and__(other)
+    #
+    # def __invert__(self):
+    #     if isinstance(self, (bool, TrueProp, FalseProp)):
+    #         return not self
+    #     return NegationOp(self)
 
-    def __ror__(self, other):
-        return self.__or__(other)
+    # def __inv__(self):
+    #     return self.__invert__()
+    #
+    # def __not__(self):
+    #     return self.__invert__()
 
-    def __ior__(self, other):
-        return self.__or__(other)
-
-    def __and__(self, other):
-        if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
-            return self and other
-        else:
-            return ConjunctionOp(self, other)
-
-    def __rand__(self, other):
-        return self.__and__(other)
-
-    def __iand__(self, other):
-        return self.__and__(other)
-
-    def __invert__(self):
-        if isinstance(self, (bool, TrueProp, FalseProp)):
-            return not self
-        return NegationOp(self)
+    # def __xor__(self):
 
 
 class Variable(Proposition):
@@ -61,27 +69,34 @@ class Operation(Proposition):
         raise NotImplementedError
 
 
-class TrueProp(Proposition):
+class PropBool(Proposition):
 
-    def __repr__(self) -> str:
-        return 'true'
+    def __init__(self, n):
+        self._n = n
 
-    def __bool__(self) -> bool:
-        return True
-
-
-class FalseProp(Proposition):
-
-    def __repr__(self) -> str:
-        return 'false'
+    def __repr__(self):
+        return str(self._n)
 
     def __bool__(self) -> bool:
-        return False
+        return bool(self._n)
 
 
-class UnaryOp(Operation, ABC):
+class TrueProp(PropBool):
 
-    def __init__(self, prop) -> None:
+    def __init__(self):
+        super().__init__(True)
+
+
+class FalseProp(PropBool):
+
+    def __init__(self):
+        super().__init__(False)
+
+
+class UnaryOp(Operation):
+
+    def __init__(self, op, prop) -> None:
+        self.op = op
         self.prop = prop
 
     def __repr__(self) -> str:
@@ -90,10 +105,14 @@ class UnaryOp(Operation, ABC):
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.prop == other.prop
 
+    def eval(self):
+        return get_unary_eval(self.op, self.prop)
 
-class BinaryOp(Operation, ABC):
 
-    def __init__(self, prop_l, prop_r) -> None:
+class BinaryOp(Operation):
+
+    def __init__(self, op, prop_l, prop_r) -> None:
+        self.op = op
         self.prop_l = prop_l
         self.prop_r = prop_r
 
@@ -103,35 +122,38 @@ class BinaryOp(Operation, ABC):
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__) and self.prop_l == other.prop_l and self.prop_r == other.prop_r
 
+    def eval(self):
+        return get_binary_eval(self.op, self.prop_l, self.prop_r)
+
 
 class NegationOp(UnaryOp):
 
-    def eval(self):
-        return not_(self.prop)
+    def __init__(self, prop):
+        super().__init__(self.__class__, prop)
 
 
 class DisjunctionOp(BinaryOp):
 
-    def eval(self):
-        return get_ev(self.prop_l, self.prop_r)[DisjunctionOp]
+    def __init__(self, prop_l, prop_r):
+        super().__init__(self.__class__, prop_l, prop_r)
 
 
 class ConjunctionOp(BinaryOp):
 
-    def eval(self):
-        return get_ev(self.prop_l, self.prop_r)[ConjunctionOp]
+    def __init__(self, prop_l, prop_r):
+        super().__init__(self.__class__, prop_l, prop_r)
 
 
 class ImplicationOp(BinaryOp):
 
-    def eval(self):
-        return get_ev(self.prop_l, self.prop_r)[ImplicationOp]
+    def __init__(self, prop_l, prop_r):
+        super().__init__(self.__class__, prop_l, prop_r)
 
 
 class EquivalenceOp(BinaryOp):
 
-    def eval(self):
-        return get_ev(self.prop_l, self.prop_r)[EquivalenceOp]
+    def __init__(self, prop_l, prop_r):
+        super().__init__(self.__class__, prop_l, prop_r)
 
 
 class AtomTransformer(Transformer):
@@ -168,10 +190,16 @@ class AtomTransformer(Transformer):
         return self.interp[value[0]]
 
 
-def get_ev(left, right):
+def get_unary_eval(op, prop):
     return {
-        ConjunctionOp: and_(left, right),
-        DisjunctionOp: or_(left, right),
-        ImplicationOp: or_(not_(left), right),
-        EquivalenceOp: and_(or_(left, not_(right)), or_(not_(left), right))
-    }
+        NegationOp: PropBool(not prop)
+    }[op]
+
+
+def get_binary_eval(op, left, right):
+    return {
+        ConjunctionOp: PropBool(left and right),
+        DisjunctionOp: PropBool(left or right),
+        ImplicationOp: PropBool((not left) or right),
+        EquivalenceOp: PropBool((left or (not right)) and ((not left) or right))
+    }[op]

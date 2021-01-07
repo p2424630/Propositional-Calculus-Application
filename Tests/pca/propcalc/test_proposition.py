@@ -1,39 +1,30 @@
 # @Author: GKarseras
 # @Date:   15 Nov 2020 11:15
 
-from copy import deepcopy
-import pytest
-
-
+from pca.propcalc.main.proposition import InitProp, eval_prop
 from pca.propcalc.tools.prop import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp, ImplicationOp
 from pca.propcalc.tools.prop import NegationOp, TrueProp, Variable, AtomTransformer
 
 
+# TODO: Mock the parser results if possible.
 class TestProposition:
 
-    def test_simple(self, simple_propositions):
-        a, b = simple_propositions
-        c = NegationOp(a)
-        d = deepcopy(b)
-        d.value = True
-        assert not a.value
-        assert c.value
-        assert not DisjunctionOp(a, b).eval()
-        assert DisjunctionOp(c, a).value
-        assert not ConjunctionOp(c, a).value
-        assert ConjunctionOp(c, d).value
-        assert not ImplicationOp(c, a).value
-        assert ImplicationOp(a, d).value
-        assert not EquivalenceOp(d, a).value
-        assert EquivalenceOp(c, d).value
+    def test_simple_props(self):
+        a = InitProp('A')
+        to_test = [FalseProp(), TrueProp()]
+        assert a.build_interp() == to_test
 
-    def test_chaining(self, simple_propositions):
-        a, b = simple_propositions
-        a.value = True
-        res = DisjunctionOp(ConjunctionOp(a, b), a)
-        assert res.value
-        res = EquivalenceOp(DisjunctionOp(ConjunctionOp(a, b), a), DisjunctionOp(ConjunctionOp(a, b), a))
-        assert res.value
-        res = ConjunctionOp(DisjunctionOp(a, b), ImplicationOp(a, DisjunctionOp(NegationOp(a), b)))
-        assert not res.value
+        a = InitProp('A or B')
+        to_test = [FalseProp(), TrueProp(), TrueProp(), TrueProp()]
+        assert a.build_interp() == to_test
+
+        a = InitProp('A and B')
+        to_test = [FalseProp(), FalseProp(), FalseProp(), TrueProp()]
+        assert a.build_interp() == to_test
+
+    def test_sat_taut_contr(self):
+        a = InitProp('A')
+        assert a.satisfiable()
+        assert not a.tautology()
+        assert not a.contradiction()
 

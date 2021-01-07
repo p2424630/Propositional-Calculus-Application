@@ -1,5 +1,5 @@
 import pytest
-from pca.propcalc.main.proposition import *
+from pca.propcalc.tools.prop import *
 
 
 @pytest.fixture

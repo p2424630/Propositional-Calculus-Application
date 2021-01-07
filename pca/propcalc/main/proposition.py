@@ -4,7 +4,7 @@
 from __future__ import annotations
 from itertools import product
 
-from pca.propcalc.tools.prop import AtomTransformer, TrueProp, FalseProp, NegationOp, get_ev
+from pca.propcalc.tools.prop import AtomTransformer, TrueProp, FalseProp, NegationOp, get_binary_eval, get_unary_eval
 from pca.propcalc.tools.parser import PARSER, SimpleTransformer
 
 
@@ -15,10 +15,13 @@ class InitProp:
         self._prop = prop
         self._parsed = PARSER.parse(prop)
 
-    def truth(self, max_vars: int = 5):
+    def get_vars(self):
         tr = SimpleTransformer()
         tr.transform(self._parsed)
-        prop_vars = tr.prop_vars
+        return tr.prop_vars
+
+    def build_interp(self, max_vars: int = 5):
+        prop_vars = self.get_vars()
         vars_len = len(prop_vars)
         if vars_len < 1:
             raise ValueError('Number of variables must be at least 1')
@@ -30,18 +33,17 @@ class InitProp:
             interp = dict(zip(prop_vars, comb))
             interp_prop = AtomTransformer(interp).transform(self._parsed)
             all_interp.append(eval_prop(interp_prop))
+        return all_interp
 
+    # TODO: Implement better & faster SAT solver.
     def satisfiable(self):
-        # return any(permutations{True, False} Proposition == True)
-        pass
+        return any(self.build_interp())
 
     def tautology(self):
-        # return all(permutations{True, False} Proposition == True)
-        pass
+        return all(self.build_interp())
 
     def contradiction(self):
-        # return all(permutations{True, False} Proposition == False)
-        pass
+        return not any(self.build_interp())
 
 
 def eval_prop(op):
@@ -49,12 +51,12 @@ def eval_prop(op):
         return op
     if isinstance(op, NegationOp):
         if isinstance(op.prop, (bool, TrueProp, FalseProp)):
-            return op.eval()
+            return get_unary_eval(op.__class__, op.eval())
         return not eval_prop(op.prop)
     if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [op.prop_l, op.prop_r]):
         return op.eval()
     if isinstance(op.prop_l, (bool, TrueProp, FalseProp)):
-        return get_ev(op.prop_l, eval_prop(op.prop_r))[op.__class__]
+        return get_binary_eval(op.__class__, op.prop_l, eval_prop(op.prop_r))
     if isinstance(op.prop_r, (bool, TrueProp, FalseProp)):
-        return get_ev(eval_prop(op.prop_l), op.prop_r)[op.__class__]
-    return get_ev(eval_prop(op.prop_l), eval_prop(op.prop_r))[op.__class__]
+        return get_binary_eval(op.__class__, eval_prop(op.prop_l), op.prop_r)
+    return get_binary_eval(op.__class__, eval_prop(op.prop_l), eval_prop(op.prop_r))

@@ -5,7 +5,7 @@ from pca.propcalc.main.proposition import *
 from pca.propcalc.tools.prop import *
 
 
-a = InitProp('not not B and not C implies A')
+a = InitProp('A implies B')
 l = []
 tr = SimpleTransformer()
 tr.transform(a._parsed)
