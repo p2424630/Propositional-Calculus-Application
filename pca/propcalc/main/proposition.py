@@ -12,24 +12,26 @@ from pca.propcalc.tools.parser import PARSER
 class InitProp:
     __slots__ = ('_prop', '_parsed')
 
-    def __eq__(self, other):
+    def __init__(self, prop: str) -> None:
+        self._prop = prop
+        self._parsed = PARSER.parse(prop)
+
+    def __eq__(self, other) -> bool:
         """
-        Current structural equivalence works with exact locations (A or B won't be equal to B or A)
+        Structural equivalence, works with exact locations and parenthesis are taken into account.
+        'A or B' != 'B or A'
+        'A or B' != '(A or B)'
         :param other:
         :return: bool
         """
         return isinstance(other, self.__class__) and self._parsed == other._parsed
 
-    def __init__(self, prop: str) -> None:
-        self._prop = prop
-        self._parsed = PARSER.parse(prop)
-
-    def _get_vars(self):
+    def _get_vars(self) -> list:
         tr = VarsVisitor()
         tr.visit(self._parsed)
-        return sorted(tr.prop_vars)
+        return sorted(set(tr.prop_vars))
 
-    def _get_combs(self, max_vars):
+    def _get_combs(self, max_vars) -> list:
         prop_vars = self._get_vars()
         vars_len = len(prop_vars)
         if vars_len < 1:
@@ -38,7 +40,7 @@ class InitProp:
             raise ValueError(f'Variable length {vars_len} exceeded the allowed {max_vars}')
         return list(product([False, True], repeat=vars_len))
 
-    def build_interp(self, max_vars: int = 5):
+    def build_interp(self, max_vars: int = 5) -> list:
         combs = self._get_combs(max_vars)
         prop_vars = self._get_vars()
         all_interp = []
@@ -49,21 +51,21 @@ class InitProp:
         return all_interp
 
     # TODO: Implement better SAT solver.
-    def satisfiable(self):
+    def satisfiable(self) -> bool:
         for i in self.build_interp():
             for j in i:
                 if isinstance(j, bool) and j:
                     return True
         return False
 
-    def tautology(self):
+    def tautology(self) -> bool:
         for i in self.build_interp():
             for j in i:
                 if isinstance(j, bool) and not j:
                     return False
         return True
 
-    def contradiction(self):
+    def contradiction(self) -> bool:
         return not self.satisfiable()
 
     def cnf(self):
@@ -96,13 +98,11 @@ class VarsVisitor(Visitor):
 
     def __init__(self):
         super().__init__()
-        self._prop_vars = []
+        self._prop_vars = set()
 
     def atom_var(self, tree):
         assert tree.data == 'atom_var'
-        val = tree.children[0].value
-        if val not in self._prop_vars:
-            self._prop_vars.append(val)
+        self._prop_vars.add(tree.children[0].value)
 
     @property
     def prop_vars(self):

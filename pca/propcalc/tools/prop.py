@@ -96,26 +96,38 @@ class Operation(Proposition):
 class UnaryOp(Operation, ABC):
 
     def __init__(self, prop) -> None:
-        self.prop = prop
+        self._prop = prop
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({repr(self.prop)})'
+        return f'{self.__class__.__name__}({repr(self._prop)})'
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.prop == other.prop
+        return isinstance(other, self.__class__) and self._prop == other._prop
+
+    @property
+    def prop(self):
+        return self._prop
 
 
 class BinaryOp(Operation, ABC):
 
     def __init__(self, prop_l, prop_r) -> None:
-        self.prop_l = prop_l
-        self.prop_r = prop_r
+        self._prop_l = prop_l
+        self._prop_r = prop_r
 
     def __repr__(self) -> str:
-        return self.__class__.__name__ + f'({repr(self.prop_l)}, {repr(self.prop_r)})'
+        return self.__class__.__name__ + f'({repr(self._prop_l)}, {repr(self._prop_r)})'
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, self.__class__) and self.prop_l == other.prop_l and self.prop_r == other.prop_r
+        return isinstance(other, self.__class__) and self._prop_l == other._prop_l and self._prop_r == other._prop_r
+
+    @property
+    def prop_l(self):
+        return self._prop_l
+
+    @property
+    def prop_r(self):
+        return self._prop_r
 
 
 class NegationOp(UnaryOp):

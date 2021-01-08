@@ -9,7 +9,7 @@ GRAMMAR = '''
              ?exp_imp: exp_or (OP_IMPLICATION exp_or)*
              ?exp_or: exp_and (OP_DISJUNCTION exp_and)*
              ?exp_and: atom (OP_CONJUNCTION atom)*
-             ?atom: OP_NEGATION atom                     -> exp_not
+             atom: OP_NEGATION atom                      -> exp_not
                   | VAR                                  -> atom_var
                   | TRUE                                 -> atom_true
                   | FALSE                                -> atom_false
