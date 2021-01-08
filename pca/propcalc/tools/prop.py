@@ -62,7 +62,7 @@ class Proposition:
 #         return isinstance(other, self.__class__) and self.name == other.name
 
 
-class Operation(Proposition):
+class Operation(ABC):
 
     @abstractmethod
     def eval(self):
@@ -93,7 +93,7 @@ class Operation(Proposition):
 #         super().__init__(False)
 
 
-class UnaryOp(Operation, ABC):
+class UnaryOp(Proposition):
 
     def __init__(self, prop) -> None:
         self._prop = prop
@@ -109,7 +109,7 @@ class UnaryOp(Operation, ABC):
         return self._prop
 
 
-class BinaryOp(Operation, ABC):
+class BinaryOp(Proposition):
 
     def __init__(self, prop_l, prop_r) -> None:
         self._prop_l = prop_l
@@ -130,31 +130,31 @@ class BinaryOp(Operation, ABC):
         return self._prop_r
 
 
-class NegationOp(UnaryOp):
+class NegationOp(UnaryOp, Operation):
 
     def eval(self) -> bool:
         return not self.prop
 
 
-class DisjunctionOp(BinaryOp):
+class DisjunctionOp(BinaryOp, Operation):
 
     def eval(self) -> bool:
         return self.prop_l or self.prop_r
 
 
-class ConjunctionOp(BinaryOp):
+class ConjunctionOp(BinaryOp, Operation):
 
     def eval(self) -> bool:
         return self.prop_l and self.prop_r
 
 
-class ImplicationOp(BinaryOp):
+class ImplicationOp(BinaryOp, Operation):
 
     def eval(self) -> bool:
         return (not self.prop_l) or self.prop_r
 
 
-class EquivalenceOp(BinaryOp):
+class EquivalenceOp(BinaryOp, Operation):
 
     def eval(self) -> bool:
         return (self.prop_l or (not self.prop_r)) and ((not self.prop_l) or self.prop_r)

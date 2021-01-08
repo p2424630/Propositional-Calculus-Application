@@ -2,9 +2,8 @@
 # @Date:   15 Nov 2020 11:13
 
 from __future__ import annotations
+from typing import Iterator, List, Set, Dict, Tuple
 from itertools import product
-from typing import Iterator
-
 from lark import Visitor
 
 from pca.propcalc.tools.prop import AtomTransformer, BinaryOp, UnaryOp
@@ -20,7 +19,7 @@ class InitProp:
 
     def __eq__(self, other) -> bool:
         """
-        Structural equivalence, works with exact locations and parenthesis are taken into account.
+        Structural equivalence - works with exact locations and parenthesis are taken into account.
         'A or B' != 'B or A'
         'A or B' != '(A or B)'
         :param other:
@@ -28,12 +27,12 @@ class InitProp:
         """
         return isinstance(other, self.__class__) and self._parsed == other._parsed
 
-    def _get_vars(self) -> list:
+    def _get_vars(self) -> List[str]:
         tr = VarsVisitor()
         tr.visit(self._parsed)
         return sorted(tr.prop_vars)
 
-    def _get_combs(self, max_vars) -> Iterator:
+    def _get_combs(self, max_vars) -> Iterator[Tuple[bool, ...]]:
         prop_vars = self._get_vars()
         vars_len = len(prop_vars)
         if vars_len < 1:
@@ -42,7 +41,7 @@ class InitProp:
             raise ValueError(f'Variable length {vars_len}, exceeded the allowed {max_vars}')
         return product([False, True], repeat=vars_len)
 
-    def build_interp(self, max_vars: int = 5) -> list:
+    def build_interp(self, max_vars: int = 5) -> List[Tuple[Dict[str, bool], bool]]:
         prop_vars = self._get_vars()
         all_interp = []
         for comb in self._get_combs(max_vars):
