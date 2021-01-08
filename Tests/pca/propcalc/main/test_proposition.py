@@ -39,10 +39,13 @@ class TestProposition:
 
     def test_taut(self):
         assert not InitProp('A').tautology()
-        assert not InitProp('A or A').tautology()
+        assert not InitProp('A or B').tautology()
+        # Excluded middle
         assert InitProp('A or not A').tautology()
         assert not InitProp('A and B implies C').tautology()
+        # Contraposition
         assert InitProp('(A implies B) iff (not B implies not A)').tautology()
+        # proof by exh
         assert InitProp('(((A or B) and (A implies C)) and (B implies C)) implies C').tautology()
 
     def test_contr(self, propositions):
