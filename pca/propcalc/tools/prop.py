@@ -13,8 +13,8 @@ class Proposition:
         return isinstance(other, self.__class__)
 
     # def __or__(self, other):
-    #     if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
-    #         return self or other
+    #     if all(isinstance(prop, (bool, TrueProp(), FalseProp())) for prop in [self, other]):
+    #         return TrueProp() if (self or other) else FalseProp()
     #     else:
     #         return DisjunctionOp(self, other)
     #
@@ -25,8 +25,8 @@ class Proposition:
     #     return self.__or__(other)
     #
     # def __and__(self, other):
-    #     if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
-    #         return self and other
+    #     if all(isinstance(prop, (bool, TrueProp(), FalseProp())) for prop in [self, other]):
+    #         return TrueProp() if (self and other) else FalseProp()
     #     else:
     #         return ConjunctionOp(self, other)
     #
@@ -37,8 +37,8 @@ class Proposition:
     #     return self.__and__(other)
     #
     # def __invert__(self):
-    #     if isinstance(self, (bool, TrueProp, FalseProp)):
-    #         return not self
+    #     if isinstance(self, (bool, TrueProp(), FalseProp())):
+    #         return TrueProp() if not self else FalseProp()
     #     return NegationOp(self)
 
     # def __inv__(self):
