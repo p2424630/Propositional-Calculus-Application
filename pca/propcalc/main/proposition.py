@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 from itertools import product
+from typing import Iterator
+
 from lark import Visitor
 
 from pca.propcalc.tools.prop import AtomTransformer, BinaryOp, UnaryOp
@@ -29,22 +31,21 @@ class InitProp:
     def _get_vars(self) -> list:
         tr = VarsVisitor()
         tr.visit(self._parsed)
-        return sorted(set(tr.prop_vars))
+        return sorted(tr.prop_vars)
 
-    def _get_combs(self, max_vars) -> list:
+    def _get_combs(self, max_vars) -> Iterator:
         prop_vars = self._get_vars()
         vars_len = len(prop_vars)
         if vars_len < 1:
             raise ValueError('Number of variables must be at least 1')
         if vars_len > max_vars:
-            raise ValueError(f'Variable length {vars_len} exceeded the allowed {max_vars}')
-        return list(product([False, True], repeat=vars_len))
+            raise ValueError(f'Variable length {vars_len}, exceeded the allowed {max_vars}')
+        return product([False, True], repeat=vars_len)
 
     def build_interp(self, max_vars: int = 5) -> list:
-        combs = self._get_combs(max_vars)
         prop_vars = self._get_vars()
         all_interp = []
-        for comb in combs:
+        for comb in self._get_combs(max_vars):
             interp = dict(zip(prop_vars, comb))
             interp_prop = AtomTransformer(interp).transform(self._parsed)
             all_interp.append((interp, eval_prop(interp_prop)))
