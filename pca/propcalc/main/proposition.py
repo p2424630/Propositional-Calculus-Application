@@ -3,15 +3,21 @@
 
 from __future__ import annotations
 from itertools import product
+from lark import Visitor
 
 from pca.propcalc.tools.prop import AtomTransformer, BinaryOp, UnaryOp
-from pca.propcalc.tools.parser import PARSER, VarsVisitor
+from pca.propcalc.tools.parser import PARSER
 
 
 class InitProp:
     __slots__ = ('_prop', '_parsed')
 
     def __eq__(self, other):
+        """
+        Current structural equivalence works with exact locations (A or B won't be equal to B or A)
+        :param other:
+        :return: bool
+        """
         return isinstance(other, self.__class__) and self._parsed == other._parsed
 
     def __init__(self, prop: str) -> None:
@@ -84,3 +90,20 @@ def eval_prop(op):
         return op.__class__(eval_prop(op.prop_l), eval_prop(op.prop_r)).eval()
     else:
         raise TypeError({type(op)})
+
+
+class VarsVisitor(Visitor):
+
+    def __init__(self):
+        super().__init__()
+        self._prop_vars = []
+
+    def atom_var(self, tree):
+        assert tree.data == 'atom_var'
+        val = tree.children[0].value
+        if val not in self._prop_vars:
+            self._prop_vars.append(val)
+
+    @property
+    def prop_vars(self):
+        return self._prop_vars

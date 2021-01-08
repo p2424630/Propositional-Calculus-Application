@@ -1,20 +1,19 @@
 # @Author: GKarseras
 # @Date:   17 Nov 2020 10:30
 
-from lark import Lark, Visitor
+from lark import Lark
 
 
 GRAMMAR = '''
              ?exp_iff: exp_imp (OP_EQUIVALENCE exp_imp)*
              ?exp_imp: exp_or (OP_IMPLICATION exp_or)*
              ?exp_or: exp_and (OP_DISJUNCTION exp_and)*
-             ?exp_and: exp_not (OP_CONJUNCTION exp_not)*
-             ?exp_not: OP_NEGATION exp_not                  -> exp_not
-                     | atom
-             atom: VAR                                      -> atom_var
-                 | TRUE                                     -> atom_true
-                 | FALSE                                    -> atom_false
-                 | "(" exp_iff ")"                          -> atom_paren
+             ?exp_and: atom (OP_CONJUNCTION atom)*
+             ?atom: OP_NEGATION atom                     -> exp_not
+                  | VAR                                  -> atom_var
+                  | TRUE                                 -> atom_true
+                  | FALSE                                -> atom_false
+                  | "(" exp_iff ")"                      -> atom_paren
             
              VAR: /[A-Z]+/
              TRUE: "true" | "top" | "t" | "\u22a4"
@@ -30,20 +29,3 @@ GRAMMAR = '''
          '''
 
 PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff')
-
-
-class VarsVisitor(Visitor):
-
-    def __init__(self):
-        super().__init__()
-        self._prop_vars = []
-
-    def atom_var(self, tree):
-        assert tree.data == 'atom_var'
-        val = tree.children[0].value
-        if val not in self._prop_vars:
-            self._prop_vars.append(val)
-
-    @property
-    def prop_vars(self):
-        return self._prop_vars

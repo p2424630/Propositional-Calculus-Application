@@ -57,6 +57,7 @@ class TestProposition:
         assert InitProp('A ∨ (B ∧ C)').build_interp() == InitProp('(A ∨ B) ∧ (A ∨ C)').build_interp()
 
     def test_de_morgan(self, propositions):
+        assert InitProp('not(A or B)').build_interp() == InitProp('(not A) and (not B)').build_interp()
         assert propositions['de_morgan'].tautology()
         assert InitProp('(not(A or B)) ⇔ ((not A) and (not B))').tautology()
 
