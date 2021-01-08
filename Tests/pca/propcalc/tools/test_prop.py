@@ -5,14 +5,14 @@ from copy import deepcopy
 import pytest
 
 
-from pca.propcalc.tools.prop import ConjunctionOp, DisjunctionOp, EquivalenceOp, ImplicationOp
-from pca.propcalc.tools.prop import NegationOp, AtomTransformer
+from pca.propcalc.tools.prop import AtomTransformer, ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
+from pca.propcalc.tools.prop import ImplicationOp, NegationOp, TrueProp
 
 
 class TestProp:
 
     def test_prop(self):
-        a = True
+        a = TrueProp()
         b = NegationOp(a)
         assert a
         assert not b.eval()

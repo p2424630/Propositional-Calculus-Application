@@ -5,7 +5,7 @@ from pca.propcalc.main.proposition import *
 from pca.propcalc.tools.prop import *
 
 
-a = InitProp('A and B')
+a = InitProp('A andB')
 # combs = a._get_combs(5)
 # prop_vars = a._get_vars()
 # all_interp = []

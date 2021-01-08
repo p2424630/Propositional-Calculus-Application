@@ -1,36 +1,36 @@
 # @Author: GKarseras
 # @Date:   15 Nov 2020 11:15
 
-from pca.propcalc.main.proposition import InitProp
+from pca.propcalc.main.proposition import InitProp, TrueProp, FalseProp
 import pytest
 
 
 class TestProposition:
 
     def test_simple_props(self):
-        to_test = [({'A': False}, False), ({'A': True}, True)]
+        to_test = [({'A': FalseProp()}, FalseProp()), ({'A': TrueProp()}, TrueProp())]
         assert InitProp('A').build_interp() == to_test
-        to_test = [({'A': False}, True), ({'A': True}, False)]
+        to_test = [({'A': FalseProp()}, TrueProp()), ({'A': TrueProp()}, FalseProp())]
         assert InitProp('not (not (not A))').build_interp() == to_test
 
     def test_disjunction(self):
-        to_test = [({'A': False, 'B': False}, False),
-                   ({'A': False, 'B': True}, True),
-                   ({'A': True, 'B': False}, True),
-                   ({'A': True, 'B': True}, True)]
+        to_test = [({'A': FalseProp(), 'B': FalseProp()}, FalseProp()),
+                   ({'A': FalseProp(), 'B': TrueProp()}, TrueProp()),
+                   ({'A': TrueProp(), 'B': FalseProp()}, TrueProp()),
+                   ({'A': TrueProp(), 'B': TrueProp()}, TrueProp())]
         assert InitProp('A or B').build_interp() == to_test
-        to_test = [({'A': False}, True),
-                   ({'A': True}, True)]
+        to_test = [({'A': FalseProp()}, TrueProp()),
+                   ({'A': TrueProp()}, TrueProp())]
         assert InitProp('A or true').build_interp() == to_test
 
     def test_conjunction(self):
-        to_test = [({'A': False, 'B': False}, False),
-                   ({'A': False, 'B': True}, False),
-                   ({'A': True, 'B': False}, False),
-                   ({'A': True, 'B': True}, True)]
+        to_test = [({'A': FalseProp(), 'B': FalseProp()}, FalseProp()),
+                   ({'A': FalseProp(), 'B': TrueProp()}, FalseProp()),
+                   ({'A': TrueProp(), 'B': FalseProp()}, FalseProp()),
+                   ({'A': TrueProp(), 'B': TrueProp()}, TrueProp())]
         assert InitProp('A and B').build_interp() == to_test
-        to_test = [({'A': False}, False),
-                   ({'A': True}, True)]
+        to_test = [({'A': FalseProp()}, FalseProp()),
+                   ({'A': TrueProp()}, TrueProp())]
         assert InitProp('A and true').build_interp() == to_test
 
     def test_sat(self):

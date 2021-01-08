@@ -6,7 +6,8 @@ from typing import Iterator, List, Set, Dict, Tuple
 from itertools import product
 from lark import Visitor
 
-from pca.propcalc.tools.prop import AtomTransformer, BinaryOp, UnaryOp
+from pca.propcalc.tools.prop import AtomTransformer, ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
+from pca.propcalc.tools.prop import ImplicationOp, NegationOp, TrueProp
 from pca.propcalc.tools.parser import PARSER
 
 
@@ -19,7 +20,7 @@ class InitProp:
 
     def __eq__(self, other) -> bool:
         """
-        Structural equivalence - works with exact locations and parenthesis are taken into account.
+        Structural equivalence - works with exact locations (parenthesis are taken into account).
         'A or B' != 'B or A'
         'A or B' != '(A or B)'
         :param other:
@@ -39,7 +40,7 @@ class InitProp:
             raise ValueError('Number of variables must be at least 1')
         if vars_len > max_vars:
             raise ValueError(f'Variable length {vars_len}, exceeded the allowed {max_vars}')
-        return product([False, True], repeat=vars_len)
+        return product([FalseProp(), TrueProp()], repeat=vars_len)
 
     def build_interp(self, max_vars: int = 5) -> List[Tuple[Dict[str, bool], bool]]:
         prop_vars = self._get_vars()
@@ -54,14 +55,14 @@ class InitProp:
     def satisfiable(self) -> bool:
         for i in self.build_interp():
             for j in i:
-                if isinstance(j, bool) and j:
+                if isinstance(j, (bool, TrueProp, FalseProp)) and j:
                     return True
         return False
 
     def tautology(self) -> bool:
         for i in self.build_interp():
             for j in i:
-                if isinstance(j, bool) and not j:
+                if isinstance(j, (bool, TrueProp, FalseProp)) and not j:
                     return False
         return True
 
@@ -76,18 +77,18 @@ class InitProp:
 
 
 def eval_prop(op):
-    if isinstance(op, bool):
+    if isinstance(op, (bool, TrueProp, FalseProp)):
         return op
-    elif isinstance(op, UnaryOp):
-        if isinstance(op.prop, bool):
+    elif isinstance(op, NegationOp):
+        if isinstance(op.prop, (bool, TrueProp, FalseProp)):
             return op.eval()
         return op.__class__(eval_prop(op.prop)).eval()
-    elif isinstance(op, BinaryOp):
-        if all(isinstance(prop, bool) for prop in [op.prop_l, op.prop_r]):
+    elif isinstance(op, (DisjunctionOp, ConjunctionOp, ImplicationOp, EquivalenceOp)):
+        if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [op.prop_l, op.prop_r]):
             return op.eval()
-        if isinstance(op.prop_l, bool):
+        if isinstance(op.prop_l, (bool, TrueProp, FalseProp)):
             return op.__class__(op.prop_l, eval_prop(op.prop_r)).eval()
-        if isinstance(op.prop_r, bool):
+        if isinstance(op.prop_r, (bool, TrueProp, FalseProp)):
             return op.__class__(eval_prop(op.prop_l), op.prop_r).eval()
         return op.__class__(eval_prop(op.prop_l), eval_prop(op.prop_r)).eval()
     else:
