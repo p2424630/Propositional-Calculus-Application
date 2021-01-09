@@ -33,7 +33,7 @@ GRAMMAR = '''
 
 
 # TODO: Fix value unpacking.
-class AtomTransformer(Transformer):
+class PropTransformer(Transformer):
 
     def exp_iff(self, value):
         return EquivalenceOp(value[0], value[2])
@@ -63,4 +63,4 @@ class AtomTransformer(Transformer):
         return Variable(value[0])
 
 
-PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff', transformer=AtomTransformer())
+PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff', transformer=PropTransformer())

@@ -8,6 +8,10 @@ class TestProposition(unittest.TestCase):
     def setUp(self) -> None:
         return
 
+    def test_structural_equality(self):
+        self.assertEqual(InitProp('A or B'), InitProp('(A or B)'))
+        self.assertNotEqual(InitProp('A or B'), InitProp('B or A'))
+
     def test_simple_props(self):
         to_test = [({Variable('A'): FalseProp()}, FalseProp()), ({Variable('A'): TrueProp()}, TrueProp())]
         self.assertEqual(InitProp('A').build_interp(), to_test)
