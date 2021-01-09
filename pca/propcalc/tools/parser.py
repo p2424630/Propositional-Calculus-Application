@@ -3,7 +3,6 @@
 
 from lark import Lark
 
-# TODO: Change exp_or to have same precedence as exp_and, XOR will be placed on the same level.
 GRAMMAR = '''
              ?exp_iff: exp_imp (OP_EQUIVALENCE exp_imp)*
              ?exp_imp: exp_or (OP_IMPLICATION exp_or)*

@@ -1,15 +1,15 @@
-# @Author: GKarseras
-# @Date:   17 Nov 2020 08:28
-
+import unittest
 from lark import Tree, Token
-from pytest_mock import mocker
-
 from pca.propcalc.tools.parser import PARSER
 
 
-class TestParser:
+class TestParser(unittest.TestCase):
 
     def test_simple_var(self):
         a = PARSER.parse('P')
         to_assert = Tree('atom_var', [Token('VAR', 'P')])
-        assert a == to_assert
+        self.assertEqual(a, to_assert)
+
+
+if __name__ == '__main__':
+    unittest.main()

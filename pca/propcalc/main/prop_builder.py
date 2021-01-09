@@ -1,13 +1,11 @@
 # @Author: GKarseras
 # @Date:   15 Nov 2020 11:13
 
-from __future__ import annotations
-from typing import Iterator, List, Set, Dict, Tuple
 from itertools import product
 from lark import Visitor
 
-from pca.propcalc.tools.prop import AtomTransformer, ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
-from pca.propcalc.tools.prop import ImplicationOp, NegationOp, TrueProp
+from pca.propcalc.tools.proposition import AtomTransformer, ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
+from pca.propcalc.tools.proposition import ImplicationOp, NegationOp, TrueProp
 from pca.propcalc.tools.parser import PARSER
 
 
@@ -28,12 +26,12 @@ class InitProp:
         """
         return isinstance(other, self.__class__) and self._parsed == other._parsed
 
-    def _get_vars(self) -> List[str]:
+    def _get_vars(self):
         tr = VarsVisitor()
         tr.visit(self._parsed)
         return sorted(tr.prop_vars)
 
-    def _get_combs(self, max_vars) -> Iterator[Tuple[bool, ...]]:
+    def _get_combs(self, max_vars):
         prop_vars = self._get_vars()
         vars_len = len(prop_vars)
         if vars_len < 1:
@@ -42,7 +40,7 @@ class InitProp:
             raise ValueError(f'Variable length {vars_len}, exceeded the allowed {max_vars}')
         return product([FalseProp(), TrueProp()], repeat=vars_len)
 
-    def build_interp(self, max_vars: int = 5) -> List[Tuple[Dict[str, bool], bool]]:
+    def build_interp(self, max_vars: int = 5):
         prop_vars = self._get_vars()
         all_interp = []
         for comb in self._get_combs(max_vars):

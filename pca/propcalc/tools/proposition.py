@@ -4,19 +4,18 @@
 from abc import ABC, abstractmethod
 from lark import Transformer
 from operator import and_, inv, or_
-from typing import Type, Union
 
 
 class Proposition:
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__)
 
     def __or__(self, other):
         if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
             return TrueProp() if (self or other) else FalseProp()
         else:
-            return DisjunctionOp(self, other)
+            raise TypeError
 
     def __ror__(self, other):
         return self.__or__(other)
@@ -25,7 +24,7 @@ class Proposition:
         if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
             return TrueProp() if (self and other) else FalseProp()
         else:
-            return ConjunctionOp(self, other)
+            raise TypeError
 
     def __rand__(self, other):
         return self.__and__(other)
@@ -33,7 +32,8 @@ class Proposition:
     def __invert__(self):
         if isinstance(self, (bool, TrueProp, FalseProp)):
             return TrueProp() if (not self) else FalseProp()
-        return NegationOp(self)
+        else:
+            raise TypeError
 
 
 class Variable(Proposition):
