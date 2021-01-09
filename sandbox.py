@@ -5,7 +5,9 @@ from pca.propcalc.main.prop_builder import *
 from pca.propcalc.tools.proposition import *
 
 
-a = InitProp('A andB')
+a = InitProp('false or A and true')
+# EQ(OR(OR(D, A), AND(B, C)), A)
+a.build_interp()
 # combs = a._get_combs(5)
 # prop_vars = a._get_vars()
 # all_interp = []

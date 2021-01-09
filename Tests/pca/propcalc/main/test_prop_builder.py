@@ -1,5 +1,6 @@
 import unittest
-from pca.propcalc.main.prop_builder import InitProp, TrueProp, FalseProp
+
+from pca.propcalc.main.prop_builder import InitProp, TrueProp, FalseProp, Variable
 
 
 class TestProposition(unittest.TestCase):
@@ -8,30 +9,65 @@ class TestProposition(unittest.TestCase):
         return
 
     def test_simple_props(self):
-        to_test = [({'A': FalseProp()}, FalseProp()), ({'A': TrueProp()}, TrueProp())]
+        to_test = [({Variable('A'): FalseProp()}, FalseProp()), ({Variable('A'): TrueProp()}, TrueProp())]
         self.assertEqual(InitProp('A').build_interp(), to_test)
-        to_test = [({'A': FalseProp()}, TrueProp()), ({'A': TrueProp()}, FalseProp())]
+        to_test = [({Variable('A'): FalseProp()}, TrueProp()), ({Variable('A'): TrueProp()}, FalseProp())]
         self.assertEqual(InitProp('not (not (not A))').build_interp(), to_test)
 
     def test_disjunction(self):
-        to_test = [({'A': FalseProp(), 'B': FalseProp()}, FalseProp()),
-                   ({'A': FalseProp(), 'B': TrueProp()}, TrueProp()),
-                   ({'A': TrueProp(), 'B': FalseProp()}, TrueProp()),
-                   ({'A': TrueProp(), 'B': TrueProp()}, TrueProp())]
+        to_test = [({Variable('A'): FalseProp(), Variable('B'): FalseProp()}, FalseProp()),
+                   ({Variable('A'): FalseProp(), Variable('B'): TrueProp()}, TrueProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): FalseProp()}, TrueProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): TrueProp()}, TrueProp())]
         self.assertEqual(InitProp('A or B').build_interp(), to_test)
-        to_test = [({'A': FalseProp()}, TrueProp()),
-                   ({'A': TrueProp()}, TrueProp())]
+        to_test = [({Variable('A'): FalseProp()}, TrueProp()),
+                   ({Variable('A'): TrueProp()}, TrueProp())]
         self.assertEqual(InitProp('A or true').build_interp(), to_test)
 
     def test_conjunction(self):
-        to_test = [({'A': FalseProp(), 'B': FalseProp()}, FalseProp()),
-                   ({'A': FalseProp(), 'B': TrueProp()}, FalseProp()),
-                   ({'A': TrueProp(), 'B': FalseProp()}, FalseProp()),
-                   ({'A': TrueProp(), 'B': TrueProp()}, TrueProp())]
+        to_test = [({Variable('A'): FalseProp(), Variable('B'): FalseProp()}, FalseProp()),
+                   ({Variable('A'): FalseProp(), Variable('B'): TrueProp()}, FalseProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): FalseProp()}, FalseProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): TrueProp()}, TrueProp())]
         self.assertEqual(InitProp('A and B').build_interp(), to_test)
-        to_test = [({'A': FalseProp()}, FalseProp()),
-                   ({'A': TrueProp()}, TrueProp())]
+        to_test = [({Variable('A'): FalseProp()}, FalseProp()),
+                   ({Variable('A'): TrueProp()}, TrueProp())]
         self.assertEqual(InitProp('A and true').build_interp(), to_test)
+
+    def test_comb(self):
+        to_test = [({Variable('A'): FalseProp(), Variable('B'): FalseProp(), Variable('C'): FalseProp(),
+                     Variable('D'): FalseProp()}, TrueProp()),
+                   ({Variable('A'): FalseProp(), Variable('B'): FalseProp(), Variable('C'): FalseProp(),
+                     Variable('D'): TrueProp()}, TrueProp()),
+                   ({Variable('A'): FalseProp(), Variable('B'): FalseProp(), Variable('C'): TrueProp(),
+                     Variable('D'): FalseProp()}, FalseProp()),
+                   ({Variable('A'): FalseProp(), Variable('B'): FalseProp(), Variable('C'): TrueProp(),
+                     Variable('D'): TrueProp()}, FalseProp()),
+                   ({Variable('A'): FalseProp(), Variable('B'): TrueProp(), Variable('C'): FalseProp(),
+                     Variable('D'): FalseProp()}, TrueProp()),
+                   ({Variable('A'): FalseProp(), Variable('B'): TrueProp(), Variable('C'): FalseProp(),
+                     Variable('D'): TrueProp()}, TrueProp()),
+                   ({Variable('A'): FalseProp(), Variable('B'): TrueProp(), Variable('C'): TrueProp(),
+                     Variable('D'): FalseProp()}, FalseProp()),
+                   ({Variable('A'): FalseProp(), Variable('B'): TrueProp(), Variable('C'): TrueProp(),
+                     Variable('D'): TrueProp()}, FalseProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): FalseProp(), Variable('C'): FalseProp(),
+                     Variable('D'): FalseProp()}, FalseProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): FalseProp(), Variable('C'): FalseProp(),
+                     Variable('D'): TrueProp()}, FalseProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): FalseProp(), Variable('C'): TrueProp(),
+                     Variable('D'): FalseProp()}, TrueProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): FalseProp(), Variable('C'): TrueProp(),
+                     Variable('D'): TrueProp()}, FalseProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): TrueProp(), Variable('C'): FalseProp(),
+                     Variable('D'): FalseProp()}, TrueProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): TrueProp(), Variable('C'): FalseProp(),
+                     Variable('D'): TrueProp()}, TrueProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): TrueProp(), Variable('C'): TrueProp(),
+                     Variable('D'): FalseProp()}, FalseProp()),
+                   ({Variable('A'): TrueProp(), Variable('B'): TrueProp(), Variable('C'): TrueProp(),
+                     Variable('D'): TrueProp()}, TrueProp())]
+        self.assertEqual(InitProp('A and D or not C iff A implies B').build_interp(), to_test)
 
     def test_sat(self):
         self.assertTrue(InitProp('A').satisfiable())

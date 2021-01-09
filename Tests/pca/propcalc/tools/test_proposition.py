@@ -1,5 +1,6 @@
 import unittest
-from pca.propcalc.tools.proposition import AtomTransformer, ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
+
+from pca.propcalc.tools.proposition import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
 from pca.propcalc.tools.proposition import ImplicationOp, NegationOp, TrueProp
 
 

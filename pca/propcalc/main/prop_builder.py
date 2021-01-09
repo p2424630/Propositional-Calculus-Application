@@ -2,10 +2,9 @@
 # @Date:   15 Nov 2020 11:13
 
 from itertools import product
-from lark import Visitor
 
-from pca.propcalc.tools.proposition import AtomTransformer, ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
-from pca.propcalc.tools.proposition import ImplicationOp, NegationOp, TrueProp
+from pca.propcalc.tools.proposition import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp, ImplicationOp
+from pca.propcalc.tools.proposition import NegationOp, TrueProp, Variable
 from pca.propcalc.tools.parser import PARSER
 
 
@@ -26,27 +25,18 @@ class InitProp:
         """
         return isinstance(other, self.__class__) and self._parsed == other._parsed
 
-    def _get_vars(self):
-        tr = VarsVisitor()
-        tr.visit(self._parsed)
-        return sorted(tr.prop_vars)
-
-    def _get_combs(self, max_vars):
-        prop_vars = self._get_vars()
-        vars_len = len(prop_vars)
-        if vars_len < 1:
-            raise ValueError('Number of variables must be at least 1')
-        if vars_len > max_vars:
-            raise ValueError(f'Variable length {vars_len}, exceeded the allowed {max_vars}')
-        return product([FalseProp(), TrueProp()], repeat=vars_len)
-
     def build_interp(self, max_vars: int = 5):
-        prop_vars = self._get_vars()
+        prop_vars = sorted(set(_get_vars_rec(self._parsed)))
+        len_prop_vars = len(prop_vars)
         all_interp = []
-        for comb in self._get_combs(max_vars):
+        if len_prop_vars < 1:
+            raise ValueError('Number of variables must be at least 1')
+        if len_prop_vars > max_vars:
+            raise ValueError(f'Variable length {len_prop_vars}, exceeded the allowed {max_vars}')
+        for comb in product([FalseProp(), TrueProp()], repeat=len_prop_vars):
             interp = dict(zip(prop_vars, comb))
-            interp_prop = AtomTransformer(interp).transform(self._parsed)
-            all_interp.append((interp, eval_prop(interp_prop)))
+            interp_prop = _get_interp_rec(self._parsed, interp)
+            all_interp.append((interp, _eval_prop_rec(interp_prop)))
         return all_interp
 
     # TODO: Implement better SAT solver.
@@ -74,35 +64,45 @@ class InitProp:
         raise NotImplementedError
 
 
-def eval_prop(op):
+def _get_vars_rec(op):
+    if isinstance(op, Variable):
+        return [op]
+    elif isinstance(op, NegationOp):
+        return _get_vars_rec(op.prop)
+    elif isinstance(op, (DisjunctionOp, ConjunctionOp, ImplicationOp, EquivalenceOp)):
+        return _get_vars_rec(op.prop_l) + _get_vars_rec(op.prop_r)
+    else:
+        return []
+
+
+def _get_interp_rec(op, interp):
+    if isinstance(op, (TrueProp, FalseProp)):
+        return op
+    elif isinstance(op, Variable):
+        return interp[op]
+    elif isinstance(op, NegationOp):
+        return op.__class__(_get_interp_rec(op.prop, interp))
+    elif isinstance(op, (DisjunctionOp, ConjunctionOp, ImplicationOp, EquivalenceOp)):
+        return op.__class__(_get_interp_rec(op.prop_l, interp), _get_interp_rec(op.prop_r, interp))
+    else:
+        raise TypeError({type(op)})
+
+
+def _eval_prop_rec(op):
     if isinstance(op, (bool, TrueProp, FalseProp)):
         return op
     elif isinstance(op, NegationOp):
         if isinstance(op.prop, (bool, TrueProp, FalseProp)):
             return op.eval()
-        return op.__class__(eval_prop(op.prop)).eval()
+        return op.__class__(_eval_prop_rec(op.prop)).eval()
     elif isinstance(op, (DisjunctionOp, ConjunctionOp, ImplicationOp, EquivalenceOp)):
         if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [op.prop_l, op.prop_r]):
             return op.eval()
-        if isinstance(op.prop_l, (bool, TrueProp, FalseProp)):
-            return op.__class__(op.prop_l, eval_prop(op.prop_r)).eval()
-        if isinstance(op.prop_r, (bool, TrueProp, FalseProp)):
-            return op.__class__(eval_prop(op.prop_l), op.prop_r).eval()
-        return op.__class__(eval_prop(op.prop_l), eval_prop(op.prop_r)).eval()
+        elif isinstance(op.prop_l, (bool, TrueProp, FalseProp)):
+            return op.__class__(op.prop_l, _eval_prop_rec(op.prop_r)).eval()
+        elif isinstance(op.prop_r, (bool, TrueProp, FalseProp)):
+            return op.__class__(_eval_prop_rec(op.prop_l), op.prop_r).eval()
+        else:
+            return op.__class__(_eval_prop_rec(op.prop_l), _eval_prop_rec(op.prop_r)).eval()
     else:
         raise TypeError({type(op)})
-
-
-class VarsVisitor(Visitor):
-
-    def __init__(self):
-        super().__init__()
-        self._prop_vars = set()
-
-    def atom_var(self, tree):
-        assert tree.data == 'atom_var'
-        self._prop_vars.add(tree.children[0].value)
-
-    @property
-    def prop_vars(self):
-        return self._prop_vars

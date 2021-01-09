@@ -1,7 +1,11 @@
 # @Author: GKarseras
 # @Date:   17 Nov 2020 10:30
 
-from lark import Lark
+from lark import Lark, Transformer
+
+from pca.propcalc.tools.proposition import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
+from pca.propcalc.tools.proposition import ImplicationOp, NegationOp, TrueProp, Variable
+
 
 GRAMMAR = '''
              ?exp_iff: exp_imp (OP_EQUIVALENCE exp_imp)*
@@ -27,4 +31,36 @@ GRAMMAR = '''
              %ignore WS
          '''
 
-PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff')
+
+# TODO: Fix value unpacking.
+class AtomTransformer(Transformer):
+
+    def exp_iff(self, value):
+        return EquivalenceOp(value[0], value[2])
+
+    def exp_imp(self, value):
+        return ImplicationOp(value[0], value[2])
+
+    def exp_or(self, value):
+        return DisjunctionOp(value[0], value[2])
+
+    def exp_and(self, value):
+        return ConjunctionOp(value[0], value[2])
+
+    def exp_not(self, value):
+        return NegationOp(value[1])
+
+    def atom_true(self, value):
+        return TrueProp()
+
+    def atom_false(self, value):
+        return FalseProp()
+
+    def atom_paren(self, value):
+        return value[0]
+
+    def atom_var(self, value):
+        return Variable(value[0])
+
+
+PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff', transformer=AtomTransformer())

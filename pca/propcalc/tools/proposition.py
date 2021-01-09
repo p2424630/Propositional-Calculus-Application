@@ -1,8 +1,8 @@
 # @Author: GKarseras
 # @Date:   17 Nov 2020 08:28
 
+from __future__ import annotations
 from abc import ABC, abstractmethod
-from lark import Transformer
 from operator import and_, inv, or_
 
 
@@ -45,7 +45,13 @@ class Variable(Proposition):
         return f'{self.__class__.__name__}({repr(self._name)})'
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, self.__class__) and self._name == other._name
+        return isinstance(other, self.__class__) and self._name == other.name
+
+    def __lt__(self, other) -> bool:
+        return self._name < other.name
+
+    def __hash__(self) -> int:
+        return hash(self._name)
 
     @property
     def name(self):
@@ -143,37 +149,3 @@ class EquivalenceOp(BinaryOp, Operation):
     def eval(self):
         return and_(or_(self.prop_l, inv(self.prop_r)), or_(inv(self.prop_l), self.prop_r))
 
-
-# TODO: Fix value unpacking.
-class AtomTransformer(Transformer):
-
-    def __init__(self, interp):
-        super().__init__()
-        self._interp = interp
-
-    def exp_iff(self, value):
-        return EquivalenceOp(value[0], value[2])
-
-    def exp_imp(self, value):
-        return ImplicationOp(value[0], value[2])
-
-    def exp_or(self, value):
-        return DisjunctionOp(value[0], value[2])
-
-    def exp_and(self, value):
-        return ConjunctionOp(value[0], value[2])
-
-    def exp_not(self, value):
-        return NegationOp(value[1])
-
-    def atom_true(self, value):
-        return TrueProp()
-
-    def atom_false(self, value):
-        return FalseProp()
-
-    def atom_paren(self, value):
-        return value[0]
-
-    def atom_var(self, value):
-        return self._interp[value[0]]
