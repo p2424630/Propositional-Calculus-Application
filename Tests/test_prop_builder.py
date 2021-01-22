@@ -1,9 +1,9 @@
 import unittest
 
-from pca.propcalc.main.prop_builder import InitProp, TrueProp, FalseProp, Variable
+from pca.propcalc.prop_builder import InitProp, TrueProp, FalseProp, Variable
 
 
-class TestProposition(unittest.TestCase):
+class TestInitProp(unittest.TestCase):
 
     def setUp(self) -> None:
         return

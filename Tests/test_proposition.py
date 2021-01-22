@@ -1,10 +1,10 @@
 import unittest
 
-from pca.propcalc.tools.proposition import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
-from pca.propcalc.tools.proposition import ImplicationOp, NegationOp, TrueProp
+from pca.propcalc.proposition import ConjunctionOp, DisjunctionOp
+from pca.propcalc.proposition import NegationOp, TrueProp
 
 
-class TestProp(unittest.TestCase):
+class TestProposition(unittest.TestCase):
 
     def test_prop(self):
         a = TrueProp()

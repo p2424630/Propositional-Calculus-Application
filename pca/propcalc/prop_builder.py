@@ -2,10 +2,13 @@
 # @Date:   15 Nov 2020 11:13
 
 from itertools import product
+import importlib
+module_name = 'subpackage.i.import'
+special_module = importlib.import_module(module_name, package='my_current_pkg')
 
-from pca.propcalc.tools.proposition import BinaryOp, ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
-from pca.propcalc.tools.proposition import ImplicationOp, NegationOp, TrueProp, UnaryOp, Variable
-from pca.propcalc.tools.parser import PARSER
+from ..tools.proposition import BinaryOp, ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
+from ..tools.proposition import ImplicationOp, NegationOp, TrueProp, UnaryOp, Variable
+from ..tools.parser import PARSER
 
 
 class InitProp:
@@ -60,7 +63,7 @@ class InitProp:
     def cnf(self):
         raise NotImplementedError
 
-    def dnf(self):
+    def minimize(self):
         raise NotImplementedError
 
 

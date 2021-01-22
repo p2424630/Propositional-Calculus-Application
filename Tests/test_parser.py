@@ -1,8 +1,8 @@
 import unittest
 
-from pca.propcalc.tools.parser import PARSER
-from pca.propcalc.tools.proposition import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
-from pca.propcalc.tools.proposition import ImplicationOp, NegationOp, TrueProp, Variable
+from pca.propcalc.pcaparser import PARSER
+from pca.propcalc.proposition import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
+from pca.propcalc.proposition import ImplicationOp, NegationOp, TrueProp, Variable
 
 
 class TestParser(unittest.TestCase):
@@ -21,9 +21,10 @@ class TestParser(unittest.TestCase):
         a = PARSER.parse('true or not A implies false and not not not B or A')
         to_assert = ImplicationOp(DisjunctionOp(TrueProp(), NegationOp(Variable('A'))),
                                   DisjunctionOp(
-                                      ConjunctionOp(FalseProp(),NegationOp(NegationOp(NegationOp(Variable('B'))))),
-                                                    Variable('A')))
+                                      ConjunctionOp(FalseProp(), NegationOp(NegationOp(NegationOp(Variable('B'))))),
+                                      Variable('A')))
         self.assertEqual(a, to_assert)
 
-    if __name__ == '__main__':
-        unittest.main()
+
+if __name__ == '__main__':
+    unittest.main()

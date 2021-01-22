@@ -1,17 +1,12 @@
 # @Author: GKarseras
 # @Date:   16 Nov 2020 11:05
 
-from pca.propcalc.main.prop_builder import *
-from pca.propcalc.tools.proposition import *
+from pca.propcalc.prop_builder import *
 
-
-a = InitProp('false or A and true')
-# EQ(OR(OR(D, A), AND(B, C)), A)
-a.build_interp()
-# combs = a._get_combs(5)
-# prop_vars = a._get_vars()
-# all_interp = []
-# for comb in combs:
-#     interp = dict(zip(prop_vars, comb))
-#     interp_prop = AtomTransformer(interp).transform(a._parsed)
-#     all_interp.append((interp, eval_prop(interp_prop)))
+a = InitProp('not(A ⇔ B)')
+print(f'prop: {a.prop}')
+print(f'parsed: {a.parsed}')
+print(f'sat: {a.satisfiable()}')
+print(f'taut: {a.tautology()}')
+print(f'contr: {a.contradiction()}')
+print(f'truth: {a.build_interp()}')

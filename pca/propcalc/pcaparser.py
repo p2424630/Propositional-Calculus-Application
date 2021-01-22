@@ -3,8 +3,8 @@
 
 from lark import Lark, Transformer
 
-from pca.propcalc.tools.proposition import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
-from pca.propcalc.tools.proposition import ImplicationOp, NegationOp, TrueProp, Variable
+from proposition import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
+from proposition import ImplicationOp, NegationOp, TrueProp, Variable
 
 
 GRAMMAR = '''

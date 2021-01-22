@@ -114,6 +114,9 @@ class BinaryOp(Proposition):
 
 
 class Operation(ABC):
+    """
+    Interface for all operations to implement an evaluation method.
+    """
 
     @abstractmethod
     def eval(self):
@@ -148,4 +151,3 @@ class EquivalenceOp(BinaryOp, Operation):
 
     def eval(self):
         return and_(or_(self.prop_l, inv(self.prop_r)), or_(inv(self.prop_l), self.prop_r))
-
