@@ -2,21 +2,16 @@
 # @Date:   15 Nov 2020 11:13
 
 from itertools import product
-import importlib
-module_name = 'subpackage.i.import'
-special_module = importlib.import_module(module_name, package='my_current_pkg')
-
-from ..tools.proposition import BinaryOp, ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
-from ..tools.proposition import ImplicationOp, NegationOp, TrueProp, UnaryOp, Variable
-from ..tools.parser import PARSER
+import proposition
+import pcaparser
 
 
 class InitProp:
-    __slots__ = ('_prop', '_parsed')
+    __slots__ = ('prop', 'parsed')
 
     def __init__(self, prop: str) -> None:
-        self._prop = prop
-        self._parsed = PARSER.parse(prop)
+        self.prop = prop
+        self.parsed = pcaparser.PARSER.parse(prop)
 
     def __eq__(self, other) -> bool:
         """
@@ -26,19 +21,19 @@ class InitProp:
         :param other:
         :return: bool
         """
-        return isinstance(other, self.__class__) and self._parsed == other._parsed
+        return isinstance(other, self.__class__) and self.parsed == other.parsed
 
     def build_interp(self, max_vars: int = 5):
-        prop_vars = sorted(set(_get_vars(self._parsed)))
+        prop_vars = sorted(set(_get_vars(self.parsed)))
         len_prop_vars = len(prop_vars)
         all_interp = []
         if len_prop_vars < 1:
             raise ValueError('Number of variables must be at least 1')
         if len_prop_vars > max_vars:
             raise ValueError(f'Variable length {len_prop_vars}, exceeded the allowed {max_vars}')
-        for comb in product([FalseProp(), TrueProp()], repeat=len_prop_vars):
+        for comb in product([proposition.FalseProp(), proposition.TrueProp()], repeat=len_prop_vars):
             interp = dict(zip(prop_vars, comb))
-            interp_prop = _get_interp(self._parsed, interp)
+            interp_prop = _get_interp(self.parsed, interp)
             all_interp.append((interp, _eval_prop(interp_prop)))
         return all_interp
 
@@ -46,14 +41,14 @@ class InitProp:
     def satisfiable(self) -> bool:
         for i in self.build_interp():
             for j in i:
-                if isinstance(j, (bool, TrueProp, FalseProp)) and j:
+                if isinstance(j, (bool, proposition.TrueProp, proposition.FalseProp)) and j:
                     return True
         return False
 
     def tautology(self) -> bool:
         for i in self.build_interp():
             for j in i:
-                if isinstance(j, (bool, TrueProp, FalseProp)) and not j:
+                if isinstance(j, (bool, proposition.TrueProp, proposition.FalseProp)) and not j:
                     return False
         return True
 
@@ -68,42 +63,45 @@ class InitProp:
 
 
 def _get_vars(op):
-    if isinstance(op, Variable):
+    if isinstance(op, proposition.Variable):
         return [op]
-    elif isinstance(op, UnaryOp):
+    elif isinstance(op, proposition.UnaryOp):
         return _get_vars(op.prop)
-    elif isinstance(op, BinaryOp):
+    elif isinstance(op, proposition.BinaryOp):
         return _get_vars(op.prop_l) + _get_vars(op.prop_r)
     else:
         return []
 
 
 def _get_interp(op, interp):
-    if isinstance(op, (bool, TrueProp, FalseProp)):
+    if isinstance(op, (bool, proposition.TrueProp, proposition.FalseProp)):
         return op
-    elif isinstance(op, Variable):
+    elif isinstance(op, proposition.Variable):
         return interp[op]
-    elif isinstance(op, UnaryOp):
+    elif isinstance(op, proposition.UnaryOp):
         return op.__class__(_get_interp(op.prop, interp))
-    elif isinstance(op, BinaryOp):
+    elif isinstance(op, proposition.BinaryOp):
         return op.__class__(_get_interp(op.prop_l, interp), _get_interp(op.prop_r, interp))
     else:
         raise TypeError({type(op)})
 
 
 def _eval_prop(op):
-    if isinstance(op, (bool, TrueProp, FalseProp)):
+    if isinstance(op, (bool, proposition.TrueProp, proposition.FalseProp)):
         return op
-    elif isinstance(op, NegationOp):
-        if isinstance(op.prop, (bool, TrueProp, FalseProp)):
+    elif isinstance(op, proposition.NegationOp):
+        if isinstance(op.prop, (bool, proposition.TrueProp, proposition.FalseProp)):
             return op.eval()
         return op.__class__(_eval_prop(op.prop)).eval()
-    elif isinstance(op, (DisjunctionOp, ConjunctionOp, ImplicationOp, EquivalenceOp)):
-        if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [op.prop_l, op.prop_r]):
+    elif isinstance(op, (
+            proposition.DisjunctionOp, proposition.ConjunctionOp, proposition.ImplicationOp,
+            proposition.EquivalenceOp)):
+        if all(isinstance(prop, (bool, proposition.TrueProp, proposition.FalseProp)) for prop in
+               [op.prop_l, op.prop_r]):
             return op.eval()
-        elif isinstance(op.prop_l, (bool, TrueProp, FalseProp)):
+        elif isinstance(op.prop_l, (bool, proposition.TrueProp, proposition.FalseProp)):
             return op.__class__(op.prop_l, _eval_prop(op.prop_r)).eval()
-        elif isinstance(op.prop_r, (bool, TrueProp, FalseProp)):
+        elif isinstance(op.prop_r, (bool, proposition.TrueProp, proposition.FalseProp)):
             return op.__class__(_eval_prop(op.prop_l), op.prop_r).eval()
         else:
             return op.__class__(_eval_prop(op.prop_l), _eval_prop(op.prop_r)).eval()
