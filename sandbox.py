@@ -1,9 +1,9 @@
 # @Author: GKarseras
 # @Date:   16 Nov 2020 11:05
 
-from pca.propcalc.prop_builder import *
+from pca_main import pcabuilder
 
-a = InitProp('not(A ⇔ B)')
+a = pcabuilder.InitProp('not(A ⇔ B)')
 print(f'prop: {a.prop}')
 print(f'parsed: {a.parsed}')
 print(f'sat: {a.satisfiable()}')

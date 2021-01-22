@@ -2,7 +2,7 @@
 # @Date:   17 Nov 2020 10:30
 
 from lark import Lark, Transformer
-import proposition
+from pca_main import pcaprop
 
 
 GRAMMAR = '''
@@ -34,31 +34,31 @@ GRAMMAR = '''
 class PropTransformer(Transformer):
 
     def exp_iff(self, value):
-        return proposition.EquivalenceOp(value[0], value[2])
+        return pcaprop.EquivalenceOp(value[0], value[2])
 
     def exp_imp(self, value):
-        return proposition.ImplicationOp(value[0], value[2])
+        return pcaprop.ImplicationOp(value[0], value[2])
 
     def exp_or(self, value):
-        return proposition.DisjunctionOp(value[0], value[2])
+        return pcaprop.DisjunctionOp(value[0], value[2])
 
     def exp_and(self, value):
-        return proposition.ConjunctionOp(value[0], value[2])
+        return pcaprop.ConjunctionOp(value[0], value[2])
 
     def exp_not(self, value):
-        return proposition.NegationOp(value[1])
+        return pcaprop.NegationOp(value[1])
 
     def atom_true(self, value):
-        return proposition.TrueProp()
+        return pcaprop.TrueProp()
 
     def atom_false(self, value):
-        return proposition.FalseProp()
+        return pcaprop.FalseProp()
 
     def atom_paren(self, value):
         return value[0]
 
     def atom_var(self, value):
-        return proposition.Variable(value[0])
+        return pcaprop.Variable(value[0])
 
 
 PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff', transformer=PropTransformer())

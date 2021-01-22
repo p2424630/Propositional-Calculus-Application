@@ -2,8 +2,7 @@
 # @Date:   15 Nov 2020 11:13
 
 from itertools import product
-import proposition
-import pcaparser
+from pca_main import pcaprop, pcaparser
 
 
 class InitProp:
@@ -31,7 +30,7 @@ class InitProp:
             raise ValueError('Number of variables must be at least 1')
         if len_prop_vars > max_vars:
             raise ValueError(f'Variable length {len_prop_vars}, exceeded the allowed {max_vars}')
-        for comb in product([proposition.FalseProp(), proposition.TrueProp()], repeat=len_prop_vars):
+        for comb in product([pcaprop.FalseProp(), pcaprop.TrueProp()], repeat=len_prop_vars):
             interp = dict(zip(prop_vars, comb))
             interp_prop = _get_interp(self.parsed, interp)
             all_interp.append((interp, _eval_prop(interp_prop)))
@@ -41,14 +40,14 @@ class InitProp:
     def satisfiable(self) -> bool:
         for i in self.build_interp():
             for j in i:
-                if isinstance(j, (bool, proposition.TrueProp, proposition.FalseProp)) and j:
+                if isinstance(j, (bool, pcaprop.TrueProp, pcaprop.FalseProp)) and j:
                     return True
         return False
 
     def tautology(self) -> bool:
         for i in self.build_interp():
             for j in i:
-                if isinstance(j, (bool, proposition.TrueProp, proposition.FalseProp)) and not j:
+                if isinstance(j, (bool, pcaprop.TrueProp, pcaprop.FalseProp)) and not j:
                     return False
         return True
 
@@ -63,45 +62,45 @@ class InitProp:
 
 
 def _get_vars(op):
-    if isinstance(op, proposition.Variable):
+    if isinstance(op, pcaprop.Variable):
         return [op]
-    elif isinstance(op, proposition.UnaryOp):
+    elif isinstance(op, pcaprop.UnaryOp):
         return _get_vars(op.prop)
-    elif isinstance(op, proposition.BinaryOp):
+    elif isinstance(op, pcaprop.BinaryOp):
         return _get_vars(op.prop_l) + _get_vars(op.prop_r)
     else:
         return []
 
 
 def _get_interp(op, interp):
-    if isinstance(op, (bool, proposition.TrueProp, proposition.FalseProp)):
+    if isinstance(op, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
         return op
-    elif isinstance(op, proposition.Variable):
+    elif isinstance(op, pcaprop.Variable):
         return interp[op]
-    elif isinstance(op, proposition.UnaryOp):
+    elif isinstance(op, pcaprop.UnaryOp):
         return op.__class__(_get_interp(op.prop, interp))
-    elif isinstance(op, proposition.BinaryOp):
+    elif isinstance(op, pcaprop.BinaryOp):
         return op.__class__(_get_interp(op.prop_l, interp), _get_interp(op.prop_r, interp))
     else:
         raise TypeError({type(op)})
 
 
 def _eval_prop(op):
-    if isinstance(op, (bool, proposition.TrueProp, proposition.FalseProp)):
+    if isinstance(op, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
         return op
-    elif isinstance(op, proposition.NegationOp):
-        if isinstance(op.prop, (bool, proposition.TrueProp, proposition.FalseProp)):
+    elif isinstance(op, pcaprop.NegationOp):
+        if isinstance(op.prop, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
             return op.eval()
         return op.__class__(_eval_prop(op.prop)).eval()
     elif isinstance(op, (
-            proposition.DisjunctionOp, proposition.ConjunctionOp, proposition.ImplicationOp,
-            proposition.EquivalenceOp)):
-        if all(isinstance(prop, (bool, proposition.TrueProp, proposition.FalseProp)) for prop in
+            pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp,
+            pcaprop.EquivalenceOp)):
+        if all(isinstance(prop, (bool, pcaprop.TrueProp, pcaprop.FalseProp)) for prop in
                [op.prop_l, op.prop_r]):
             return op.eval()
-        elif isinstance(op.prop_l, (bool, proposition.TrueProp, proposition.FalseProp)):
+        elif isinstance(op.prop_l, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
             return op.__class__(op.prop_l, _eval_prop(op.prop_r)).eval()
-        elif isinstance(op.prop_r, (bool, proposition.TrueProp, proposition.FalseProp)):
+        elif isinstance(op.prop_r, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
             return op.__class__(_eval_prop(op.prop_l), op.prop_r).eval()
         else:
             return op.__class__(_eval_prop(op.prop_l), _eval_prop(op.prop_r)).eval()

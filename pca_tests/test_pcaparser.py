@@ -1,28 +1,30 @@
 import unittest
 
-from pca.propcalc.pcaparser import PARSER
-from pca.propcalc.proposition import ConjunctionOp, DisjunctionOp, EquivalenceOp, FalseProp
-from pca.propcalc.proposition import ImplicationOp, NegationOp, TrueProp, Variable
+from pca_main.pcaparser import PARSER
+from pca_main import pcaprop
 
 
 class TestParser(unittest.TestCase):
 
     def test_simple_var(self):
         a = PARSER.parse('P')
-        to_assert = Variable('P')
+        to_assert = pcaprop.Variable('P')
         self.assertEqual(a, to_assert)
 
     def test_prop(self):
         a = PARSER.parse('P or B iff C and A implies (P and C)')
-        to_assert = EquivalenceOp(DisjunctionOp(Variable('P'), Variable('B')),
-                                  ImplicationOp(ConjunctionOp(Variable('C'), Variable('A')),
-                                                ConjunctionOp(Variable('P'), Variable('C'))))
+        to_assert = pcaprop.EquivalenceOp(pcaprop.DisjunctionOp(pcaprop.Variable('P'), pcaprop.Variable('B')),
+                                          pcaprop.ImplicationOp(
+                                              pcaprop.ConjunctionOp(pcaprop.Variable('C'), pcaprop.Variable('A')),
+                                              pcaprop.ConjunctionOp(pcaprop.Variable('P'), pcaprop.Variable('C'))))
         self.assertEqual(a, to_assert)
         a = PARSER.parse('true or not A implies false and not not not B or A')
-        to_assert = ImplicationOp(DisjunctionOp(TrueProp(), NegationOp(Variable('A'))),
-                                  DisjunctionOp(
-                                      ConjunctionOp(FalseProp(), NegationOp(NegationOp(NegationOp(Variable('B'))))),
-                                      Variable('A')))
+        to_assert = pcaprop.ImplicationOp(
+            pcaprop.DisjunctionOp(pcaprop.TrueProp(), pcaprop.NegationOp(pcaprop.Variable('A'))),
+            pcaprop.DisjunctionOp(
+                pcaprop.ConjunctionOp(pcaprop.FalseProp(), pcaprop.NegationOp(
+                    pcaprop.NegationOp(pcaprop.NegationOp(pcaprop.Variable('B'))))),
+                pcaprop.Variable('A')))
         self.assertEqual(a, to_assert)
 
 
