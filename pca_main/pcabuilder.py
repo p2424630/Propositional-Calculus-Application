@@ -22,7 +22,10 @@ class InitProp:
         """
         return isinstance(other, self.__class__) and self.parsed == other.parsed
 
-    def build_interp(self, max_vars: int = 5):
+    def unique_vars(self):
+        return sorted(x.name for x in set(_get_vars(self.parsed)))
+
+    def build_interp(self, max_vars: int = 50):
         prop_vars = sorted(set(_get_vars(self.parsed)))
         len_prop_vars = len(prop_vars)
         all_interp = []
@@ -33,22 +36,22 @@ class InitProp:
         for comb in product([pcaprop.FalseProp(), pcaprop.TrueProp()], repeat=len_prop_vars):
             interp = dict(zip(prop_vars, comb))
             interp_prop = _get_interp(self.parsed, interp)
-            all_interp.append((interp, _eval_prop(interp_prop)))
+            list_vals = [bool(x) for x in interp.values()]
+            list_vals.append(bool(_eval_prop(interp_prop)))
+            all_interp.append(list_vals)
         return all_interp
 
-    # TODO: Implement better SAT solver.
+    # TODO: Implement better SAT solver. Do not rely on truth table, prop with only bool values must still be checked
     def satisfiable(self) -> bool:
         for i in self.build_interp():
-            for j in i:
-                if isinstance(j, (bool, pcaprop.TrueProp, pcaprop.FalseProp)) and j:
-                    return True
+            if i[-1]:
+                return True
         return False
 
     def tautology(self) -> bool:
         for i in self.build_interp():
-            for j in i:
-                if isinstance(j, (bool, pcaprop.TrueProp, pcaprop.FalseProp)) and not j:
-                    return False
+            if not i[-1]:
+                return False
         return True
 
     def contradiction(self) -> bool:
@@ -92,11 +95,8 @@ def _eval_prop(op):
         if isinstance(op.prop, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
             return op.eval()
         return op.__class__(_eval_prop(op.prop)).eval()
-    elif isinstance(op, (
-            pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp,
-            pcaprop.EquivalenceOp)):
-        if all(isinstance(prop, (bool, pcaprop.TrueProp, pcaprop.FalseProp)) for prop in
-               [op.prop_l, op.prop_r]):
+    elif isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+        if all(isinstance(prop, (bool, pcaprop.TrueProp, pcaprop.FalseProp)) for prop in [op.prop_l, op.prop_r]):
             return op.eval()
         elif isinstance(op.prop_l, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
             return op.__class__(op.prop_l, _eval_prop(op.prop_r)).eval()

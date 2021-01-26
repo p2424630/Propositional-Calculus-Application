@@ -3,10 +3,10 @@
 
 from pca_main import pcabuilder
 
-a = pcabuilder.InitProp('not(A ⇔ B)')
-print(f'prop: {a.prop}')
-print(f'parsed: {a.parsed}')
-print(f'sat: {a.satisfiable()}')
-print(f'taut: {a.tautology()}')
-print(f'contr: {a.contradiction()}')
-print(f'truth: {a.build_interp()}')
+a = pcabuilder.InitProp('B implies A')
+# print(f'prop: {a.prop}')
+# print(f'parsed: {a.parsed}')
+# print(f'sat: {a.satisfiable()}')
+# print(f'taut: {a.tautology()}')
+# print(f'contr: {a.contradiction()}')
+# print(f'truth: {a.build_interp()}')
