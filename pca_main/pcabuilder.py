@@ -23,10 +23,10 @@ class InitProp:
         return isinstance(other, self.__class__) and self.parsed == other.parsed
 
     def unique_vars(self):
-        return sorted(x.name for x in set(_get_vars(self.parsed)))
+        return sorted(set(_get_vars(self.parsed)))
 
-    def build_interp(self, max_vars: int = 50):
-        prop_vars = sorted(set(_get_vars(self.parsed)))
+    def interpretations(self, max_vars: int = 15):
+        prop_vars = self.unique_vars()
         len_prop_vars = len(prop_vars)
         all_interp = []
         if len_prop_vars < 1:
@@ -36,20 +36,20 @@ class InitProp:
         for comb in product([pcaprop.FalseProp(), pcaprop.TrueProp()], repeat=len_prop_vars):
             interp = dict(zip(prop_vars, comb))
             interp_prop = _get_interp(self.parsed, interp)
-            list_vals = [bool(x) for x in interp.values()]
-            list_vals.append(bool(_eval_prop(interp_prop)))
-            all_interp.append(list_vals)
+            interp_values = list(interp.values())
+            interp_values.append(_eval_prop(interp_prop))
+            all_interp.append(interp_values)
         return all_interp
 
-    # TODO: Implement better SAT solver. Do not rely on truth table, prop with only bool values must still be checked
+    # TODO: Implement better SAT solver.
     def satisfiable(self) -> bool:
-        for i in self.build_interp():
+        for i in self.interpretations():
             if i[-1]:
                 return True
         return False
 
     def tautology(self) -> bool:
-        for i in self.build_interp():
+        for i in self.interpretations():
             if not i[-1]:
                 return False
         return True

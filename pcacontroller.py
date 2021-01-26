@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 
-class DataModelOut(BaseModel):
+class CalcModel(BaseModel):
     Proposition: str
     Satisfiable: bool
     Tautology: bool
@@ -32,22 +32,21 @@ class DataModelOut(BaseModel):
     Interpretations: List[List[bool]]
 
 
-@app.get("/api/calc/{prop}", response_model=DataModelOut)
+@app.get("/api/calc/{prop}", response_model=CalcModel)
 async def calc_prop(prop):
     print(prop)
     try:
         r = pcabuilder.InitProp(prop)
+        return {
+            "Proposition": r.prop,
+            'Satisfiable': bool(r.satisfiable()),
+            'Tautology': bool(r.tautology()),
+            'Contradiction': bool(r.contradiction()),
+            'Variables': [variable.name for variable in r.unique_vars()],
+            'Interpretations': [[bool(bool_val) for bool_val in interp] for interp in r.interpretations()],
+        }
     except Exception as e:
         return {'Error': repr(e)}
-
-    return {
-        "Proposition": r.prop,
-        'Satisfiable': bool(r.satisfiable()),
-        'Tautology': bool(r.tautology()),
-        'Contradiction': bool(r.contradiction()),
-        'Variables': r.unique_vars(),
-        'Interpretations': r.build_interp(),
-    }
 
 
 @app.get("/api/sat/{prop}")
@@ -83,7 +82,7 @@ async def calc_prop(prop):
         r = pcabuilder.InitProp(prop)
     except Exception as e:
         return {'Error': repr(e)}
-    return {'truth': repr(r.build_interp())}
+    return {'truth': repr(r.interpretations())}
 
 
 # if __name__ == '__main__':

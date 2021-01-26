@@ -12,92 +12,55 @@ class TestInitProp(unittest.TestCase):
         self.assertEqual(pcabuilder.InitProp('A or B'), pcabuilder.InitProp('(A or B)'))
         self.assertNotEqual(pcabuilder.InitProp('A or B'), pcabuilder.InitProp('B or A'))
 
+    def test_unique_vars(self):
+        to_test = [pcaprop.Variable('A'), pcaprop.Variable('B')]
+        self.assertEqual(pcabuilder.InitProp('Bor A iff B and A').unique_vars(), to_test)
+        self.assertEqual([variable.name for variable in pcabuilder.InitProp('Bor A iff B and A').unique_vars()],
+                         ['A', 'B'])
+
     def test_simple_props(self):
-        to_test = [({pcaprop.Variable('A'): pcaprop.FalseProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp()}, pcaprop.TrueProp())]
-        self.assertEqual(pcabuilder.InitProp('A').build_interp(), to_test)
-        to_test = [({pcaprop.Variable('A'): pcaprop.FalseProp()}, pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp()}, pcaprop.FalseProp())]
-        self.assertEqual(pcabuilder.InitProp('not (not (not A))').build_interp(), to_test)
+        to_test = [[pcaprop.FalseProp(), pcaprop.FalseProp()], [pcaprop.TrueProp(), pcaprop.TrueProp()]]
+        self.assertEqual(pcabuilder.InitProp('A').interpretations(), to_test)
+        to_test = [[pcaprop.FalseProp(), pcaprop.TrueProp()], [pcaprop.TrueProp(), pcaprop.FalseProp()]]
+        self.assertEqual(pcabuilder.InitProp('not (not (not A))').interpretations(), to_test)
 
     def test_disjunction(self):
-        to_test = [({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.FalseProp()},
-                    pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.TrueProp()},
-                    pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.FalseProp()},
-                    pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.TrueProp()},
-                    pcaprop.TrueProp())]
-        self.assertEqual(pcabuilder.InitProp('A or B').build_interp(), to_test)
-        to_test = [({pcaprop.Variable('A'): pcaprop.FalseProp()}, pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp()}, pcaprop.TrueProp())]
-        self.assertEqual(pcabuilder.InitProp('A or true').build_interp(), to_test)
+        to_test = [[pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.FalseProp()],
+                   [pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.TrueProp()],
+                   [pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.TrueProp()],
+                   [pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.TrueProp()]]
+        self.assertEqual(pcabuilder.InitProp('A or B').interpretations(), to_test)
+        to_test = [[pcaprop.FalseProp(), pcaprop.TrueProp()], [pcaprop.TrueProp(), pcaprop.TrueProp()]]
+        self.assertEqual(pcabuilder.InitProp('A or true').interpretations(), to_test)
 
     def test_conjunction(self):
-        to_test = [({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.FalseProp()},
-                    pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.TrueProp()},
-                    pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.FalseProp()},
-                    pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.TrueProp()},
-                    pcaprop.TrueProp())]
-        self.assertEqual(pcabuilder.InitProp('A and B').build_interp(), to_test)
-        to_test = [({pcaprop.Variable('A'): pcaprop.FalseProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp()}, pcaprop.TrueProp())]
-        self.assertEqual(pcabuilder.InitProp('A and true').build_interp(), to_test)
+        to_test = [[pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.FalseProp()],
+                   [pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.FalseProp()],
+                   [pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.FalseProp()],
+                   [pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.TrueProp()]]
+        self.assertEqual(pcabuilder.InitProp('A and B').interpretations(), to_test)
+        to_test = [[pcaprop.FalseProp(), pcaprop.FalseProp()], [pcaprop.TrueProp(), pcaprop.TrueProp()]]
+        self.assertEqual(pcabuilder.InitProp('A and true').interpretations(), to_test)
 
     def test_comb(self):
-        to_test = [({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.FalseProp(),
-                     pcaprop.Variable('C'): pcaprop.FalseProp(),
-                     pcaprop.Variable('D'): pcaprop.FalseProp()}, pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.FalseProp(),
-                     pcaprop.Variable('C'): pcaprop.FalseProp(),
-                     pcaprop.Variable('D'): pcaprop.TrueProp()}, pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.FalseProp(),
-                     pcaprop.Variable('C'): pcaprop.TrueProp(),
-                     pcaprop.Variable('D'): pcaprop.FalseProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.FalseProp(),
-                     pcaprop.Variable('C'): pcaprop.TrueProp(),
-                     pcaprop.Variable('D'): pcaprop.TrueProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.TrueProp(),
-                     pcaprop.Variable('C'): pcaprop.FalseProp(),
-                     pcaprop.Variable('D'): pcaprop.FalseProp()}, pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.TrueProp(),
-                     pcaprop.Variable('C'): pcaprop.FalseProp(),
-                     pcaprop.Variable('D'): pcaprop.TrueProp()}, pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.TrueProp(),
-                     pcaprop.Variable('C'): pcaprop.TrueProp(),
-                     pcaprop.Variable('D'): pcaprop.FalseProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.FalseProp(), pcaprop.Variable('B'): pcaprop.TrueProp(),
-                     pcaprop.Variable('C'): pcaprop.TrueProp(),
-                     pcaprop.Variable('D'): pcaprop.TrueProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.FalseProp(),
-                     pcaprop.Variable('C'): pcaprop.FalseProp(),
-                     pcaprop.Variable('D'): pcaprop.FalseProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.FalseProp(),
-                     pcaprop.Variable('C'): pcaprop.FalseProp(),
-                     pcaprop.Variable('D'): pcaprop.TrueProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.FalseProp(),
-                     pcaprop.Variable('C'): pcaprop.TrueProp(),
-                     pcaprop.Variable('D'): pcaprop.FalseProp()}, pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.FalseProp(),
-                     pcaprop.Variable('C'): pcaprop.TrueProp(),
-                     pcaprop.Variable('D'): pcaprop.TrueProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.TrueProp(),
-                     pcaprop.Variable('C'): pcaprop.FalseProp(),
-                     pcaprop.Variable('D'): pcaprop.FalseProp()}, pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.TrueProp(),
-                     pcaprop.Variable('C'): pcaprop.FalseProp(),
-                     pcaprop.Variable('D'): pcaprop.TrueProp()}, pcaprop.TrueProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.TrueProp(),
-                     pcaprop.Variable('C'): pcaprop.TrueProp(),
-                     pcaprop.Variable('D'): pcaprop.FalseProp()}, pcaprop.FalseProp()),
-                   ({pcaprop.Variable('A'): pcaprop.TrueProp(), pcaprop.Variable('B'): pcaprop.TrueProp(),
-                     pcaprop.Variable('C'): pcaprop.TrueProp(),
-                     pcaprop.Variable('D'): pcaprop.TrueProp()}, pcaprop.TrueProp())]
-        self.assertEqual(pcabuilder.InitProp('A and D or not C iff A implies B').build_interp(), to_test)
+        to_test = [
+            [pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.TrueProp()],
+            [pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.TrueProp()],
+            [pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.FalseProp()],
+            [pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.FalseProp()],
+            [pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.TrueProp()],
+            [pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.TrueProp()],
+            [pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.FalseProp()],
+            [pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.FalseProp()],
+            [pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.FalseProp()],
+            [pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.FalseProp()],
+            [pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.TrueProp()],
+            [pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.FalseProp()],
+            [pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.FalseProp(), pcaprop.TrueProp()],
+            [pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.TrueProp(), pcaprop.TrueProp()],
+            [pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.FalseProp(), pcaprop.FalseProp()],
+            [pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.TrueProp(), pcaprop.TrueProp()]]
+        self.assertEqual(pcabuilder.InitProp('A and D or not C iff A implies B').interpretations(), to_test)
 
     def test_sat(self):
         self.assertTrue(pcabuilder.InitProp('A').satisfiable())
@@ -120,12 +83,12 @@ class TestInitProp(unittest.TestCase):
         self.assertFalse(pcabuilder.InitProp('(not(A and B)) ⇔ ((not A) or (not B))').contradiction())
 
     def test_distributivity(self):
-        self.assertEqual(pcabuilder.InitProp('A ∨ (B ∧ C)').build_interp(),
-                         pcabuilder.InitProp('(A ∨ B) ∧ (A ∨ C)').build_interp())
+        self.assertEqual(pcabuilder.InitProp('A ∨ (B ∧ C)').interpretations(),
+                         pcabuilder.InitProp('(A ∨ B) ∧ (A ∨ C)').interpretations())
 
     def test_de_morgan(self):
-        self.assertEqual(pcabuilder.InitProp('not(A or B)').build_interp(),
-                         pcabuilder.InitProp('(not A) and (not B)').build_interp())
+        self.assertEqual(pcabuilder.InitProp('not(A or B)').interpretations(),
+                         pcabuilder.InitProp('(not A) and (not B)').interpretations())
         self.assertTrue(pcabuilder.InitProp('(not(A and B)) ⇔ ((not A) or (not B))').tautology())
         self.assertTrue(pcabuilder.InitProp('(not(A or B)) ⇔ ((not A) and (not B))').tautology())
 
@@ -133,8 +96,8 @@ class TestInitProp(unittest.TestCase):
         self.assertTrue(pcabuilder.InitProp('(((A ∧ B) ⇔ A) ⇔ B) ⇔ (A ∨ B)').tautology())
 
     def test_contrapositive(self):
-        self.assertEqual(pcabuilder.InitProp('C ⇒ (A ∧ B)').build_interp(),
-                         pcabuilder.InitProp('(C ⇒ A) ∧ (C ⇒ B)').build_interp())
+        self.assertEqual(pcabuilder.InitProp('C ⇒ (A ∧ B)').interpretations(),
+                         pcabuilder.InitProp('(C ⇒ A) ∧ (C ⇒ B)').interpretations())
 
 
 if __name__ == '__main__':
