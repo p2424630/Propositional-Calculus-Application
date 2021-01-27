@@ -1,12 +1,12 @@
 # @Author: GKarseras
 # @Date:   22 Jan 2021 14:04
-from typing import List, Tuple, Dict, Union
 
-from fastapi import FastAPI
+from typing import List
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from pca_main import pcabuilder
-from pca_main.pcaprop import Variable, TrueProp, FalseProp
 
 app = FastAPI()
 
@@ -32,6 +32,19 @@ class CalcModel(BaseModel):
     Interpretations: List[List[bool]]
 
 
+class PropException(Exception):
+    def __init__(self, err: str):
+        self.err = err
+
+
+@app.exception_handler(PropException)
+async def prop_exception_handler(request: Request, exc: PropException):
+    return JSONResponse(
+        status_code=406,
+        content={"Error": exc.err},
+    )
+
+
 @app.get("/api/calc/{prop}", response_model=CalcModel)
 async def calc_prop(prop):
     print(prop)
@@ -46,7 +59,7 @@ async def calc_prop(prop):
             'Interpretations': [[bool(bool_val) for bool_val in interp] for interp in r.interpretations()],
         }
     except Exception as e:
-        return {'Error': repr(e)}
+        raise PropException(err=repr(e))
 
 
 @app.get("/api/sat/{prop}")
