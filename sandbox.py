@@ -3,7 +3,8 @@
 
 from pca_main import pcabuilder
 
-a = pcabuilder.InitProp('B implies A')
+a = pcabuilder.InitProp('A or (B iff (C and (D implies (E or (F and (G iff (L and M implies (N or (P and ('
+                        'Z iff X or W))) iff H)))))))')
 # print(f'prop: {a.prop}')
 # print(f'parsed: {a.parsed}')
 # print(f'sat: {a.satisfiable()}')

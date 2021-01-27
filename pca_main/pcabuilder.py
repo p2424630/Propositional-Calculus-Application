@@ -25,21 +25,19 @@ class InitProp:
     def unique_vars(self):
         return sorted(set(_get_vars(self.parsed)))
 
-    def interpretations(self, max_vars: int = 15):
+    def interpretations(self, max_vars: int = 10):
         prop_vars = self.unique_vars()
         len_prop_vars = len(prop_vars)
-        all_interp = []
         if len_prop_vars < 1:
             raise ValueError('Number of variables must be at least 1')
-        if len_prop_vars > max_vars:
+        elif len_prop_vars > max_vars:
             raise ValueError(f'Variable length {len_prop_vars}, exceeded the allowed {max_vars}')
         for comb in product([pcaprop.FalseProp(), pcaprop.TrueProp()], repeat=len_prop_vars):
             interp = dict(zip(prop_vars, comb))
             interp_prop = _get_interp(self.parsed, interp)
             interp_values = list(interp.values())
             interp_values.append(_eval_prop(interp_prop))
-            all_interp.append(interp_values)
-        return all_interp
+            yield interp_values
 
     # TODO: Implement better SAT solver.
     def satisfiable(self) -> bool:

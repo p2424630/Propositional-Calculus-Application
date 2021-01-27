@@ -17,7 +17,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    # allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -25,9 +25,35 @@ app.add_middleware(
 
 class CalcModel(BaseModel):
     Proposition: str
+    Parsed: str
     Satisfiable: bool
     Tautology: bool
     Contradiction: bool
+    Variables: List[str]
+    Interpretations: List[List[bool]]
+
+
+class CalcSatModel(BaseModel):
+    Proposition: str
+    Parsed: str
+    Satisfiable: bool
+
+
+class CalcTautModel(BaseModel):
+    Proposition: str
+    Parsed: str
+    Tautology: bool
+
+
+class CalcContrModel(BaseModel):
+    Proposition: str
+    Parsed: str
+    Contradiction: bool
+
+
+class CalcInterpModel(BaseModel):
+    Proposition: str
+    Parsed: str
     Variables: List[str]
     Interpretations: List[List[bool]]
 
@@ -51,7 +77,8 @@ async def calc_prop(prop):
     try:
         r = pcabuilder.InitProp(prop)
         return {
-            "Proposition": r.prop,
+            'Proposition': r.prop,
+            'Parsed': repr(r.parsed),
             'Satisfiable': bool(r.satisfiable()),
             'Tautology': bool(r.tautology()),
             'Contradiction': bool(r.contradiction()),
@@ -62,40 +89,57 @@ async def calc_prop(prop):
         raise PropException(err=repr(e))
 
 
-@app.get("/api/sat/{prop}")
-async def calc_prop(prop):
+@app.get("/api/sat/{prop}", response_model=CalcSatModel)
+async def calc_prop_sat(prop):
     try:
         r = pcabuilder.InitProp(prop)
+        return {
+            'Proposition': r.prop,
+            'Parsed': repr(r.parsed),
+            'Satisfiable': repr(r.satisfiable())
+        }
     except Exception as e:
-        return {'Error': repr(e)}
-    return {'sat': repr(r.satisfiable())}
+        raise PropException(err=repr(e))
 
 
-@app.get("/api/taut/{prop}")
-async def calc_prop(prop):
+@app.get("/api/taut/{prop}", response_model=CalcTautModel)
+async def calc_prop_taut(prop):
     try:
         r = pcabuilder.InitProp(prop)
+        return {
+            'Proposition': r.prop,
+            'Parsed': repr(r.parsed),
+            'Tautology': bool(r.tautology())
+        }
     except Exception as e:
-        return {'Error': repr(e)}
-    return {'taut': repr(r.tautology())}
+        raise PropException(err=repr(e))
 
 
-@app.get("/api/contr/{prop}")
-async def calc_prop(prop):
+@app.get("/api/contr/{prop}", response_model=CalcContrModel)
+async def calc_prop_contr(prop):
     try:
         r = pcabuilder.InitProp(prop)
+        return {
+            'Proposition': r.prop,
+            'Parsed': repr(r.parsed),
+            'Contradiction': bool(r.contradiction())
+        }
     except Exception as e:
-        return {'Error': repr(e)}
-    return {'contr': repr(r.contradiction())}
+        raise PropException(err=repr(e))
 
 
-@app.get("/api/truth/{prop}")
-async def calc_prop(prop):
+@app.get("/api/interp/{prop}", response_model=CalcInterpModel)
+async def calc_prop_interp(prop):
     try:
         r = pcabuilder.InitProp(prop)
+        return {
+            'Proposition': r.prop,
+            'Parsed': repr(r.parsed),
+            'Variables': [variable.name for variable in r.unique_vars()],
+            'Interpretations': [[bool(bool_val) for bool_val in interp] for interp in r.interpretations()]
+        }
     except Exception as e:
-        return {'Error': repr(e)}
-    return {'truth': repr(r.interpretations())}
+        raise PropException(err=repr(e))
 
 
 # if __name__ == '__main__':
