@@ -1,2 +1,2 @@
 # Propositional-Calculus-Application
-Made with Python and PyQt
+Made with Python
