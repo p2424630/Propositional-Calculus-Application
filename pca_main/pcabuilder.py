@@ -5,12 +5,54 @@ from itertools import product
 from pca_main import pcaprop, pcaparser
 
 
-class InitProp:
-    __slots__ = ('prop', 'parsed')
+class PropLaws:
+    __slots__ = ('proposition', 'parsed')
 
-    def __init__(self, prop: str) -> None:
-        self.prop = prop
-        self.parsed = pcaparser.PARSER.parse(prop)
+    def __init__(self, proposition: str) -> None:
+        self.proposition = proposition
+        self.parsed = pcaparser.PARSER.parse(proposition)
+
+    def idempotence(self):
+        return
+
+    def commutativity(self):
+        return
+
+    def associativity(self):
+        return
+
+    def absorption(self):
+        return
+
+    def distributivity(self):
+        return
+
+    def maximum(self):
+        return
+
+    def minimum(self):
+        return
+
+    def excluded_middle(self):
+        return
+
+    def de_morgan(self):
+        return
+
+    def implication(self):
+        return
+
+    def contrapositive(self):
+        return
+
+    def equivalence(self):
+        return
+
+
+class InitProp(PropLaws):
+
+    def __init__(self, prop: str):
+        super().__init__(prop)
 
     def __eq__(self, other) -> bool:
         """
@@ -56,10 +98,10 @@ class InitProp:
         return not self.satisfiable()
 
     def cnf(self):
-        raise NotImplementedError
+        return
 
     def minimize(self):
-        raise NotImplementedError
+        return
 
 
 def _get_vars(op):
