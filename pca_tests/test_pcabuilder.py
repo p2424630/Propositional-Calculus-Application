@@ -99,6 +99,32 @@ class TestInitProp(unittest.TestCase):
         self.assertEqual(list(pcabuilder.InitProp('C ⇒ (A ∧ B)').interpretations()),
                          list(pcabuilder.InitProp('(C ⇒ A) ∧ (C ⇒ B)').interpretations()))
 
+    def test_idempotence(self):
+        return
+
+    def test_commutativity(self):
+        return
+
+    def test_associativity(self):
+        return
+
+    def test_absorption(self):
+        return
+
+    def test_maximum(self):
+        self.assertTrue(pcabuilder.InitProp('A or true').maximum())
+        self.assertTrue(pcabuilder.InitProp('true or (A iff B)').maximum())
+        self.assertEqual(pcabuilder.InitProp('A and true').maximum(), pcaprop.Variable('A'))
+        self.assertEqual(pcabuilder.InitProp('true and (A iff B)').maximum(),
+                         pcaprop.EquivalenceOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
+
+    def test_minimum(self):
+        self.assertEqual(pcabuilder.InitProp('A or false').minimum(), pcaprop.Variable('A'))
+        self.assertEqual(pcabuilder.InitProp('false or (A iff B)').minimum(),
+                         pcaprop.EquivalenceOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
+        self.assertFalse(pcabuilder.InitProp('A and false').minimum())
+        self.assertFalse(pcabuilder.InitProp('false and (A iff B)').minimum())
+
 
 if __name__ == '__main__':
     unittest.main()

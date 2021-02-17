@@ -3,11 +3,9 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-# from dataclasses import dataclass
 from operator import and_, inv, or_
 
 
-# @dataclass(frozen=True)
 class Proposition:
 
     def __eq__(self, other) -> bool:

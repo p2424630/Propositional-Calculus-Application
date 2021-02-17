@@ -5,54 +5,12 @@ from itertools import product
 from pca_main import pcaprop, pcaparser
 
 
-class PropLaws:
+class InitProp:
     __slots__ = ('proposition', 'parsed')
 
     def __init__(self, proposition: str) -> None:
         self.proposition = proposition
         self.parsed = pcaparser.PARSER.parse(proposition)
-
-    def idempotence(self):
-        return
-
-    def commutativity(self):
-        return
-
-    def associativity(self):
-        return
-
-    def absorption(self):
-        return
-
-    def distributivity(self):
-        return
-
-    def maximum(self):
-        return
-
-    def minimum(self):
-        return
-
-    def excluded_middle(self):
-        return
-
-    def de_morgan(self):
-        return
-
-    def implication(self):
-        return
-
-    def contrapositive(self):
-        return
-
-    def equivalence(self):
-        return
-
-
-class InitProp(PropLaws):
-
-    def __init__(self, prop: str):
-        super().__init__(prop)
 
     def __eq__(self, other) -> bool:
         """
@@ -81,7 +39,6 @@ class InitProp(PropLaws):
             interp_values.append(_eval_prop(interp_prop))
             yield interp_values
 
-    # TODO: Implement better SAT solver.
     def satisfiable(self) -> bool:
         for i in self.interpretations():
             if i[-1]:
@@ -97,11 +54,41 @@ class InitProp(PropLaws):
     def contradiction(self) -> bool:
         return not self.satisfiable()
 
-    def cnf(self):
-        return
+    def idempotence(self):
+        return _idempotence(self.parsed)
 
-    def minimize(self):
-        return
+    def commutativity(self):
+        return _commutativity(self.parsed)
+
+    def associativity(self):
+        return _associativity(self.parsed)
+
+    def absorption(self):
+        return _absorption(self.parsed)
+
+    def distributivity(self):
+        return _distributivity(self.parsed)
+
+    def maximum(self):
+        return _maximum(self.parsed)
+
+    def minimum(self):
+        return _minimum(self.parsed)
+
+    def excluded_middle(self):
+        return _excluded_middle(self.parsed)
+
+    def de_morgan(self):
+        return _de_morgan(self.parsed)
+
+    def implication(self):
+        return _implication(self.parsed)
+
+    def contrapositive(self):
+        return _contrapositive(self.parsed)
+
+    def equivalence(self):
+        return _equivalence(self.parsed)
 
 
 def _get_vars(op):
@@ -146,3 +133,74 @@ def _eval_prop(op):
             return op.__class__(_eval_prop(op.prop_l), _eval_prop(op.prop_r)).eval()
     else:
         raise TypeError({type(op)})
+
+
+def _idempotence(op):
+    if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+        if op.prop_l == op.prop_r:
+            return op.prop_l
+
+
+def _commutativity(op):
+    if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp)):
+        return op.__class__(op.prop_r, op.prop_l)
+
+
+def _associativity(op):
+    return
+
+
+def _absorption(op):
+    return
+
+
+def _distributivity(op):
+    return
+
+
+def _maximum(op):
+    if isinstance(op, pcaprop.DisjunctionOp):
+        if any(isinstance(prop, pcaprop.TrueProp) for prop in [op.prop_l, op.prop_r]):
+            return True
+    if isinstance(op, pcaprop.ConjunctionOp):
+        if isinstance(op.prop_l, pcaprop.TrueProp):
+            return op.prop_r
+        if isinstance(op.prop_r, pcaprop.TrueProp):
+            return op.prop_l
+
+
+def _minimum(op):
+    if isinstance(op, pcaprop.ConjunctionOp):
+        if any(isinstance(prop, pcaprop.FalseProp) for prop in [op.prop_l, op.prop_r]):
+            return False
+    if isinstance(op, pcaprop.DisjunctionOp):
+        if isinstance(op.prop_l, pcaprop.FalseProp):
+            return op.prop_r
+        if isinstance(op.prop_r, pcaprop.FalseProp):
+            return op.prop_l
+
+
+def _excluded_middle(op):
+    return
+
+
+def _involution(op):
+    if isinstance(op, pcaprop.NegationOp) and isinstance(op.prop, pcaprop.NegationOp):
+        return op.prop.prop
+
+
+def _de_morgan(op):
+    return
+
+
+def _implication(op):
+    if isinstance(op, pcaprop.ImplicationOp):
+        return pcaprop.DisjunctionOp(pcaprop.NegationOp(op.prop_l), op.prop_r)
+
+
+def _contrapositive(op):
+    return
+
+
+def _equivalence(op):
+    return
