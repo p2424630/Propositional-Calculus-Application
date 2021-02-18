@@ -90,6 +90,9 @@ class InitProp:
     def equivalence(self):
         return _equivalence(self.parsed)
 
+    def involution(self):
+        return _involution(self.parsed)
+
 
 def _get_vars(op):
     if isinstance(op, pcaprop.Variable):
@@ -136,14 +139,24 @@ def _eval_prop(op):
 
 
 def _idempotence(op):
-    if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+    if isinstance(op, pcaprop.NegationOp):
+        return op.__class__(_idempotence(op.prop))
+    elif isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
         if op.prop_l == op.prop_r:
             return op.prop_l
+        else:
+            return op.__class__(_idempotence(op.prop_l), _idempotence(op.prop_r))
+    return op
 
 
 def _commutativity(op):
-    if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp)):
+    if isinstance(op, pcaprop.NegationOp):
+        return op.__class__(_commutativity(op.prop))
+    elif isinstance(op, (pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+        return op.__class__(_commutativity(op.prop_l), _commutativity(op.prop_r))
+    elif isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp)):
         return op.__class__(op.prop_r, op.prop_l)
+    return op
 
 
 def _associativity(op):
@@ -159,25 +172,43 @@ def _distributivity(op):
 
 
 def _maximum(op):
-    if isinstance(op, pcaprop.DisjunctionOp):
+    if isinstance(op, pcaprop.NegationOp):
+        return op.__class__(_maximum(op.prop))
+    elif isinstance(op, (pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+        return op.__class__(_maximum(op.prop_l), _maximum(op.prop_r))
+    elif isinstance(op, pcaprop.DisjunctionOp):
         if any(isinstance(prop, pcaprop.TrueProp) for prop in [op.prop_l, op.prop_r]):
-            return True
-    if isinstance(op, pcaprop.ConjunctionOp):
+            return pcaprop.TrueProp()
+        else:
+            return op.__class__(_maximum(op.prop_l), _maximum(op.prop_r))
+    elif isinstance(op, pcaprop.ConjunctionOp):
         if isinstance(op.prop_l, pcaprop.TrueProp):
             return op.prop_r
-        if isinstance(op.prop_r, pcaprop.TrueProp):
+        elif isinstance(op.prop_r, pcaprop.TrueProp):
             return op.prop_l
+        else:
+            return op.__class__(_maximum(op.prop_l), _maximum(op.prop_r))
+    return op
 
 
 def _minimum(op):
-    if isinstance(op, pcaprop.ConjunctionOp):
+    if isinstance(op, pcaprop.NegationOp):
+        return op.__class__(_minimum(op.prop))
+    elif isinstance(op, (pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+        return op.__class__(_minimum(op.prop_l), _minimum(op.prop_r))
+    elif isinstance(op, pcaprop.ConjunctionOp):
         if any(isinstance(prop, pcaprop.FalseProp) for prop in [op.prop_l, op.prop_r]):
-            return False
-    if isinstance(op, pcaprop.DisjunctionOp):
+            return pcaprop.FalseProp()
+        else:
+            return op.__class__(_minimum(op.prop_l), _minimum(op.prop_r))
+    elif isinstance(op, pcaprop.DisjunctionOp):
         if isinstance(op.prop_l, pcaprop.FalseProp):
             return op.prop_r
-        if isinstance(op.prop_r, pcaprop.FalseProp):
+        elif isinstance(op.prop_r, pcaprop.FalseProp):
             return op.prop_l
+        else:
+            return op.__class__(_minimum(op.prop_l), _minimum(op.prop_r))
+    return op
 
 
 def _excluded_middle(op):
@@ -185,12 +216,27 @@ def _excluded_middle(op):
 
 
 def _involution(op):
-    if isinstance(op, pcaprop.NegationOp) and isinstance(op.prop, pcaprop.NegationOp):
-        return op.prop.prop
+    if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+        return op.__class__(_involution(op.prop_l), _involution(op.prop_r))
+    elif isinstance(op, pcaprop.NegationOp):
+        if isinstance(op.prop, pcaprop.NegationOp):
+            return _involution(op.prop.prop)
+        else:
+            return op.__class__(_involution(op.prop))
+    return op
 
 
 def _de_morgan(op):
-    return
+    if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+        return op.__class__(_de_morgan(op.prop_l), _de_morgan(op.prop_r))
+    if isinstance(op, pcaprop.NegationOp):
+        if isinstance(op.prop, pcaprop.DisjunctionOp):
+            return pcaprop.ConjunctionOp(pcaprop.NegationOp(op.prop.prop_l), pcaprop.NegationOp(op.prop.prop_r))
+        elif isinstance(op.prop, pcaprop.ConjunctionOp):
+            return pcaprop.DisjunctionOp(pcaprop.NegationOp(op.prop.prop_l), pcaprop.NegationOp(op.prop.prop_r))
+        else:
+            return op.__class__(_de_morgan(op.prop))
+    return op
 
 
 def _implication(op):
