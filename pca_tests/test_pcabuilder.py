@@ -166,6 +166,9 @@ class TestInitProp(unittest.TestCase):
     def test_implication(self):
         self.assertEqual(pcabuilder.InitProp('A implies B').implication(),
                          pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.Variable('B')))
+        self.assertEqual(pcabuilder.InitProp('A or not (A implies B)').implication(),
+                         pcaprop.DisjunctionOp(pcaprop.Variable('A'), pcaprop.NegationOp(
+                         pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.Variable('B')))))
 
     def test_equivalence(self):
         return

@@ -159,18 +159,6 @@ def _commutativity(op):
     return op
 
 
-def _associativity(op):
-    return
-
-
-def _absorption(op):
-    return
-
-
-def _distributivity(op):
-    return
-
-
 def _maximum(op):
     if isinstance(op, pcaprop.NegationOp):
         return op.__class__(_maximum(op.prop))
@@ -211,10 +199,6 @@ def _minimum(op):
     return op
 
 
-def _excluded_middle(op):
-    return
-
-
 def _involution(op):
     if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
         return op.__class__(_involution(op.prop_l), _involution(op.prop_r))
@@ -229,7 +213,7 @@ def _involution(op):
 def _de_morgan(op):
     if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
         return op.__class__(_de_morgan(op.prop_l), _de_morgan(op.prop_r))
-    if isinstance(op, pcaprop.NegationOp):
+    elif isinstance(op, pcaprop.NegationOp):
         if isinstance(op.prop, pcaprop.DisjunctionOp):
             return pcaprop.ConjunctionOp(pcaprop.NegationOp(op.prop.prop_l), pcaprop.NegationOp(op.prop.prop_r))
         elif isinstance(op.prop, pcaprop.ConjunctionOp):
@@ -240,8 +224,30 @@ def _de_morgan(op):
 
 
 def _implication(op):
-    if isinstance(op, pcaprop.ImplicationOp):
+    if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.EquivalenceOp)):
+        return op.__class__(_implication(op.prop_l), _implication(op.prop_r))
+    elif isinstance(op, pcaprop.NegationOp):
+        return op.__class__(_implication(op.prop))
+    elif isinstance(op, pcaprop.ImplicationOp):
         return pcaprop.DisjunctionOp(pcaprop.NegationOp(op.prop_l), op.prop_r)
+    return op
+
+
+def _associativity(op):
+    # (a ∧ b) ∧ c  ≡  a ∧ (b ∧ c)
+    return
+
+
+def _absorption(op):
+    return
+
+
+def _distributivity(op):
+    return
+
+
+def _excluded_middle(op):
+    return
 
 
 def _contrapositive(op):
