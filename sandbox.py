@@ -4,8 +4,7 @@
 from pca_main import pcabuilder
 from pca_main import pcaprop
 
-a = pcabuilder.InitProp('A or (B iff (C and (D implies (E or (F and (G iff (L and M implies (N or (P and ('
-                        'Z iff X or W))) iff H)))))))')
+a = pcabuilder.InitProp('A and (B and top)').maximum()
 # print(f'prop: {a.prop}')
 # print(f'parsed: {a.parsed}')
 # print(f'sat: {a.satisfiable()}')

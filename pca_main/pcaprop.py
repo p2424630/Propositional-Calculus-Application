@@ -99,7 +99,7 @@ class BinaryOp(Proposition):
         self._prop_r = prop_r
 
     def __repr__(self) -> str:
-        return self.__class__.__name__ + f'({repr(self._prop_l)}, {repr(self._prop_r)})'
+        return f'{self.__class__.__name__}({repr(self._prop_l)}, {repr(self._prop_r)})'
 
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__) and self._prop_l == other._prop_l and self._prop_r == other._prop_r

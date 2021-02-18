@@ -110,24 +110,59 @@ class TestInitProp(unittest.TestCase):
                          list(pcabuilder.InitProp('(C ⇒ A) ∧ (C ⇒ B)').interpretations()))
 
     def test_idempotence(self):
-        self.assertEqual(pcabuilder.InitProp('A and A').idempotence(), pcaprop.Variable('A'))
-        self.assertEqual(pcabuilder.InitProp('not not (A and A)').idempotence(),
+        self.assertTrue(pcabuilder.InitProp('A and A').idempotence() == pcaprop.Variable('A'))
+        self.assertTrue(pcabuilder.InitProp('not not (A and A)').idempotence() ==
+                        pcaprop.NegationOp(pcaprop.NegationOp(pcaprop.Variable('A'))))
+        self.assertTrue(pcabuilder.InitProp('B or not (A and A)').idempotence() ==
+                        pcaprop.DisjunctionOp(pcaprop.Variable('B'),
+                                              pcaprop.NegationOp(pcaprop.Variable('A'))))
+        self.assertTrue(pcabuilder.InitProp('B or not (A and ( A or A))').idempotence() ==
+                        pcaprop.DisjunctionOp(pcaprop.Variable('B'), pcaprop.NegationOp(pcaprop.Variable('A'))))
+        self.assertFalse(pcabuilder.InitProp('not not (A and B)').idempotence() ==
                          pcaprop.NegationOp(pcaprop.NegationOp(pcaprop.Variable('A'))))
-        self.assertEqual(pcabuilder.InitProp('B or not (A and A)').idempotence(),
-                         pcaprop.DisjunctionOp(pcaprop.Variable('B'),
-                                               pcaprop.NegationOp(pcaprop.Variable('A'))))
-        self.assertNotEqual(pcabuilder.InitProp('not not (A and B)').idempotence(),
-                            pcaprop.NegationOp(pcaprop.NegationOp(pcaprop.Variable('A'))))
 
     def test_commutativity(self):
-        self.assertEqual(pcabuilder.InitProp('A and B').commutativity(),
-                         pcaprop.ConjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('A')))
-        self.assertEqual(pcabuilder.InitProp('B implies (A and B)').commutativity(),
-                         pcaprop.ImplicationOp(pcaprop.Variable('B'),
-                                               pcaprop.ConjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('A'))))
-        self.assertEqual(pcabuilder.InitProp('not not (A and B)').commutativity(),
-                         pcaprop.NegationOp(pcaprop.NegationOp(
-                             pcaprop.ConjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('A')))))
+        self.assertTrue(pcabuilder.InitProp('A and B').commutativity() ==
+                        pcaprop.ConjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('A')))
+        self.assertTrue(pcabuilder.InitProp('A and (C and B)').commutativity() == pcaprop.ConjunctionOp(
+            pcaprop.ConjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('C')), pcaprop.Variable('A')))
+        self.assertTrue(pcabuilder.InitProp('A or (C and ( D or B))').commutativity() == pcaprop.DisjunctionOp(
+            pcaprop.ConjunctionOp(pcaprop.DisjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('D')),
+                                  pcaprop.Variable('C')), pcaprop.Variable('A')))
+        self.assertTrue(pcabuilder.InitProp('B implies (A and B)').commutativity() == pcaprop.ImplicationOp(
+            pcaprop.Variable('B'), pcaprop.ConjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('A'))))
+        self.assertTrue(pcabuilder.InitProp('not not (A and B)').commutativity() == pcaprop.NegationOp(
+            pcaprop.NegationOp(pcaprop.ConjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('A')))))
+
+    def test_maximum(self):
+        self.assertTrue(pcabuilder.InitProp('A or true').maximum() == pcaprop.TrueProp())
+        self.assertTrue(pcabuilder.InitProp('true or (A iff B)').maximum() == pcaprop.TrueProp())
+        self.assertTrue(pcabuilder.InitProp('B iff (A and (true or (A iff B)))').maximum() ==
+                        pcaprop.EquivalenceOp(pcaprop.Variable('B'), pcaprop.Variable('A')))
+        self.assertTrue(pcabuilder.InitProp('A and true').maximum() == pcaprop.Variable('A'))
+        self.assertTrue(pcabuilder.InitProp('true and (A iff B)').maximum() ==
+                        pcaprop.EquivalenceOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
+
+    def test_minimum(self):
+        self.assertTrue(pcabuilder.InitProp('A or false').minimum() == pcaprop.Variable('A'))
+        self.assertTrue(pcabuilder.InitProp('false or (A iff B)').minimum() ==
+                        pcaprop.EquivalenceOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
+        self.assertTrue(pcabuilder.InitProp('A and false').minimum() == pcaprop.FalseProp())
+        self.assertTrue(pcabuilder.InitProp('false and (A iff B)').minimum() == pcaprop.FalseProp())
+        self.assertTrue(pcabuilder.InitProp('B iff (A and (false and (A iff B)))').minimum() ==
+                        pcaprop.EquivalenceOp(pcaprop.Variable('B'), pcaprop.FalseProp()))
+
+    def test_involution(self):
+        self.assertTrue(pcabuilder.InitProp('not not not not A').involution() == pcaprop.Variable('A'))
+        self.assertTrue(pcabuilder.InitProp('not not (B or not not A)').involution() ==
+                        pcaprop.DisjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('A')))
+
+    def test_implication(self):
+        self.assertTrue(pcabuilder.InitProp('A implies B').implication() ==
+                        pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.Variable('B')))
+        self.assertTrue(pcabuilder.InitProp('A or not (A implies B)').implication() ==
+                        pcaprop.DisjunctionOp(pcaprop.Variable('A'), pcaprop.NegationOp(
+                            pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.Variable('B')))))
 
     def test_associativity(self):
         return
@@ -135,40 +170,8 @@ class TestInitProp(unittest.TestCase):
     def test_absorption(self):
         return
 
-    def test_maximum(self):
-        self.assertEqual(pcabuilder.InitProp('A or true').maximum(), pcaprop.TrueProp())
-        self.assertEqual(pcabuilder.InitProp('true or (A iff B)').maximum(), pcaprop.TrueProp())
-        self.assertEqual(pcabuilder.InitProp('B iff (A and (true or (A iff B)))').maximum(),
-                         pcaprop.EquivalenceOp(pcaprop.Variable('B'), pcaprop.ConjunctionOp(
-                             pcaprop.Variable('A'), pcaprop.TrueProp())))
-        self.assertEqual(pcabuilder.InitProp('A and true').maximum(), pcaprop.Variable('A'))
-        self.assertEqual(pcabuilder.InitProp('true and (A iff B)').maximum(),
-                         pcaprop.EquivalenceOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
-
-    def test_minimum(self):
-        self.assertEqual(pcabuilder.InitProp('A or false').minimum(), pcaprop.Variable('A'))
-        self.assertEqual(pcabuilder.InitProp('false or (A iff B)').minimum(),
-                         pcaprop.EquivalenceOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
-        self.assertEqual(pcabuilder.InitProp('A and false').minimum(), pcaprop.FalseProp())
-        self.assertEqual(pcabuilder.InitProp('false and (A iff B)').minimum(), pcaprop.FalseProp())
-        self.assertEqual(pcabuilder.InitProp('B iff (A and (false and (A iff B)))').minimum(),
-                         pcaprop.EquivalenceOp(pcaprop.Variable('B'), pcaprop.ConjunctionOp(
-                             pcaprop.Variable('A'), pcaprop.FalseProp())))
-
     def test_excluded_middle(self):
         return
-
-    def test_involution(self):
-        self.assertEqual(pcabuilder.InitProp('not not not not A').involution(), pcaprop.Variable('A'))
-        self.assertEqual(pcabuilder.InitProp('not not (B or not not A)').involution(),
-                         pcaprop.DisjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('A')))
-
-    def test_implication(self):
-        self.assertEqual(pcabuilder.InitProp('A implies B').implication(),
-                         pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.Variable('B')))
-        self.assertEqual(pcabuilder.InitProp('A or not (A implies B)').implication(),
-                         pcaprop.DisjunctionOp(pcaprop.Variable('A'), pcaprop.NegationOp(
-                         pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.Variable('B')))))
 
     def test_equivalence(self):
         return

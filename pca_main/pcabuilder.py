@@ -22,6 +22,9 @@ class InitProp:
         """
         return isinstance(other, self.__class__) and self.parsed == other.parsed
 
+    def __repr__(self):
+        return repr(self.parsed)
+
     def unique_vars(self):
         return sorted(set(_get_vars(self.parsed)))
 
@@ -139,64 +142,69 @@ def _eval_prop(op):
 
 
 def _idempotence(op):
+    if isinstance(op, (pcaprop.Variable, pcaprop.TrueProp, pcaprop.FalseProp)):
+        return op
     if isinstance(op, pcaprop.NegationOp):
         return op.__class__(_idempotence(op.prop))
-    elif isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+    elif isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp)):
         if op.prop_l == op.prop_r:
             return op.prop_l
-        else:
-            return op.__class__(_idempotence(op.prop_l), _idempotence(op.prop_r))
-    return op
+    return op.__class__(_idempotence(op.prop_l), _idempotence(op.prop_r))
 
 
 def _commutativity(op):
+    if isinstance(op, (pcaprop.Variable, pcaprop.TrueProp, pcaprop.FalseProp)):
+        return op
     if isinstance(op, pcaprop.NegationOp):
         return op.__class__(_commutativity(op.prop))
     elif isinstance(op, (pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
         return op.__class__(_commutativity(op.prop_l), _commutativity(op.prop_r))
     elif isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp)):
-        return op.__class__(op.prop_r, op.prop_l)
-    return op
+        if all(isinstance(prop, (pcaprop.Variable, pcaprop.FalseProp, pcaprop.TrueProp)
+                          ) for prop in [op.prop_l, op.prop_r]):
+            return op.__class__(op.prop_r, op.prop_l)
+        elif isinstance(op.prop_l, (pcaprop.Variable, pcaprop.FalseProp, pcaprop.TrueProp)):
+            return op.__class__(_commutativity(op.prop_r), op.prop_l)
+        elif isinstance(op.prop_r, (pcaprop.Variable, pcaprop.FalseProp, pcaprop.TrueProp)):
+            return op.__class__(op.prop_r, _commutativity(op.prop_l))
+        else:
+            return op.__class__(_commutativity(op.prop_r), _commutativity(op.prop_l))
 
 
 def _maximum(op):
-    if isinstance(op, pcaprop.NegationOp):
+    if isinstance(op, (pcaprop.Variable, pcaprop.TrueProp, pcaprop.FalseProp)):
+        return op
+    elif isinstance(op, pcaprop.NegationOp):
         return op.__class__(_maximum(op.prop))
     elif isinstance(op, (pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
         return op.__class__(_maximum(op.prop_l), _maximum(op.prop_r))
     elif isinstance(op, pcaprop.DisjunctionOp):
         if any(isinstance(prop, pcaprop.TrueProp) for prop in [op.prop_l, op.prop_r]):
             return pcaprop.TrueProp()
-        else:
-            return op.__class__(_maximum(op.prop_l), _maximum(op.prop_r))
     elif isinstance(op, pcaprop.ConjunctionOp):
         if isinstance(op.prop_l, pcaprop.TrueProp):
-            return op.prop_r
+            return _maximum(op.prop_r)
         elif isinstance(op.prop_r, pcaprop.TrueProp):
-            return op.prop_l
-        else:
-            return op.__class__(_maximum(op.prop_l), _maximum(op.prop_r))
-    return op
+            return _maximum(op.prop_l)
+    return _maximum(op.__class__(_maximum(op.prop_l), _maximum(op.prop_r)))
 
 
 def _minimum(op):
-    if isinstance(op, pcaprop.NegationOp):
+    if isinstance(op, (pcaprop.Variable, pcaprop.TrueProp, pcaprop.FalseProp)):
+        return op
+    elif isinstance(op, pcaprop.NegationOp):
         return op.__class__(_minimum(op.prop))
     elif isinstance(op, (pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
         return op.__class__(_minimum(op.prop_l), _minimum(op.prop_r))
     elif isinstance(op, pcaprop.ConjunctionOp):
         if any(isinstance(prop, pcaprop.FalseProp) for prop in [op.prop_l, op.prop_r]):
             return pcaprop.FalseProp()
-        else:
-            return op.__class__(_minimum(op.prop_l), _minimum(op.prop_r))
     elif isinstance(op, pcaprop.DisjunctionOp):
         if isinstance(op.prop_l, pcaprop.FalseProp):
-            return op.prop_r
+            return _minimum(op.prop_r)
         elif isinstance(op.prop_r, pcaprop.FalseProp):
-            return op.prop_l
-        else:
-            return op.__class__(_minimum(op.prop_l), _minimum(op.prop_r))
-    return op
+            return _minimum(op.prop_l)
+    return _minimum(op.__class__(_minimum(op.prop_l), _minimum(op.prop_r)))
 
 
 def _involution(op):
@@ -234,7 +242,6 @@ def _implication(op):
 
 
 def _associativity(op):
-    # (a ∧ b) ∧ c  ≡  a ∧ (b ∧ c)
     return
 
 
