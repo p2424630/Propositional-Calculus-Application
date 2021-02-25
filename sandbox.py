@@ -4,7 +4,7 @@
 from pca_main import pcabuilder
 from pca_main import pcaprop
 
-a = pcabuilder.InitProp('A and (B and top)').maximum()
+a = pcabuilder.InitProp('A and (B and top)')
 # print(f'prop: {a.prop}')
 # print(f'parsed: {a.parsed}')
 # print(f'sat: {a.satisfiable()}')

@@ -142,6 +142,8 @@ class TestInitProp(unittest.TestCase):
         self.assertTrue(pcabuilder.InitProp('A and true').maximum() == pcaprop.Variable('A'))
         self.assertTrue(pcabuilder.InitProp('true and (A iff B)').maximum() ==
                         pcaprop.EquivalenceOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
+        self.assertTrue(pcabuilder.InitProp('A and (B and top)').maximum() ==
+                        pcaprop.ConjunctionOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
 
     def test_minimum(self):
         self.assertTrue(pcabuilder.InitProp('A or false').minimum() == pcaprop.Variable('A'))

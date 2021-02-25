@@ -6,6 +6,18 @@ from abc import ABC, abstractmethod
 from operator import and_, inv, or_
 
 
+class Symbols:
+    UNARY = 'UN_OP'
+    BINARY = 'BI_OP'
+    EQUIVALENCE = ' \u21D4 '
+    IMPLICATION = ' \u21D2 '
+    DISJUNCTION = ' \u2228 '
+    CONJUNCTION = ' \u2227 '
+    NEGATION = '\u00AC '
+    TRUE = '\u22a4'
+    FALSE = '\u22A5'
+
+
 class Proposition:
 
     def __eq__(self, other) -> bool:
@@ -41,6 +53,9 @@ class Variable(Proposition):
     def __init__(self, name: str) -> None:
         self._name = str(name)
 
+    def __str__(self) -> str:
+        return self._name
+
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._name)})'
 
@@ -59,27 +74,39 @@ class Variable(Proposition):
 
 
 class TrueProp(Proposition):
+    symbol = Symbols.TRUE
+
+    def __str__(self) -> str:
+        return self.symbol
 
     def __repr__(self) -> str:
-        return 'True'
+        return f'{self.__class__.__name__}'
 
     def __bool__(self) -> bool:
         return True
 
 
 class FalseProp(Proposition):
+    symbol = Symbols.FALSE
+
+    def __str__(self) -> str:
+        return self.symbol
 
     def __repr__(self) -> str:
-        return 'False'
+        return f'{self.__class__.__name__}'
 
     def __bool__(self) -> bool:
         return False
 
 
 class UnaryOp(Proposition):
+    symbol = Symbols.UNARY
 
     def __init__(self, prop) -> None:
         self._prop = prop
+
+    def __str__(self):
+        return f'({self.__class__.symbol}{str(self._prop)})'
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._prop)})'
@@ -93,10 +120,14 @@ class UnaryOp(Proposition):
 
 
 class BinaryOp(Proposition):
+    symbol = Symbols.BINARY
 
     def __init__(self, prop_l, prop_r) -> None:
         self._prop_l = prop_l
         self._prop_r = prop_r
+
+    def __str__(self):
+        return f'({str(self._prop_l)}{self.__class__.symbol}{str(self._prop_r)})'
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._prop_l)}, {repr(self._prop_r)})'
@@ -124,30 +155,35 @@ class Operation(ABC):
 
 
 class NegationOp(UnaryOp, Operation):
+    symbol = Symbols.NEGATION
 
     def eval(self):
         return inv(self.prop)
 
 
 class DisjunctionOp(BinaryOp, Operation):
+    symbol = Symbols.DISJUNCTION
 
     def eval(self):
         return or_(self.prop_l, self.prop_r)
 
 
 class ConjunctionOp(BinaryOp, Operation):
+    symbol = Symbols.CONJUNCTION
 
     def eval(self):
         return and_(self.prop_l, self.prop_r)
 
 
 class ImplicationOp(BinaryOp, Operation):
+    symbol = Symbols.IMPLICATION
 
     def eval(self):
         return or_(inv(self.prop_l), self.prop_r)
 
 
 class EquivalenceOp(BinaryOp, Operation):
+    symbol = Symbols.EQUIVALENCE
 
     def eval(self):
         return and_(or_(self.prop_l, inv(self.prop_r)), or_(inv(self.prop_l), self.prop_r))
