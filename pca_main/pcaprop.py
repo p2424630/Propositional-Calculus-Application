@@ -6,16 +6,17 @@ from abc import ABC, abstractmethod
 from operator import and_, inv, or_
 
 
-class Symbols:
-    UNARY = 'UN_OP'
-    BINARY = 'BI_OP'
-    EQUIVALENCE = ' \u21D4 '
-    IMPLICATION = ' \u21D2 '
-    DISJUNCTION = ' \u2228 '
-    CONJUNCTION = ' \u2227 '
-    NEGATION = '\u00AC '
-    TRUE = '\u22a4'
-    FALSE = '\u22A5'
+SYMBOLS = {
+    'UNARY': 'UN_OP',
+    'BINARY': 'BI_OP',
+    'EQUIVALENCE': ' \u21D4 ',
+    'IMPLICATION': ' \u21D2 ',
+    'DISJUNCTION': ' \u2228 ',
+    'CONJUNCTION': ' \u2227 ',
+    'NEGATION': '\u00AC ',
+    'TRUE': '\u22a4',
+    'FALSE': '\u22A5'
+}
 
 
 class Proposition:
@@ -74,7 +75,7 @@ class Variable(Proposition):
 
 
 class TrueProp(Proposition):
-    symbol = Symbols.TRUE
+    symbol = SYMBOLS['TRUE']
 
     def __str__(self) -> str:
         return self.symbol
@@ -87,7 +88,7 @@ class TrueProp(Proposition):
 
 
 class FalseProp(Proposition):
-    symbol = Symbols.FALSE
+    symbol = SYMBOLS['FALSE']
 
     def __str__(self) -> str:
         return self.symbol
@@ -100,7 +101,7 @@ class FalseProp(Proposition):
 
 
 class UnaryOp(Proposition):
-    symbol = Symbols.UNARY
+    symbol = SYMBOLS['UNARY']
 
     def __init__(self, prop) -> None:
         self._prop = prop
@@ -120,7 +121,7 @@ class UnaryOp(Proposition):
 
 
 class BinaryOp(Proposition):
-    symbol = Symbols.BINARY
+    symbol = SYMBOLS['BINARY']
 
     def __init__(self, prop_l, prop_r) -> None:
         self._prop_l = prop_l
@@ -155,35 +156,35 @@ class Operation(ABC):
 
 
 class NegationOp(UnaryOp, Operation):
-    symbol = Symbols.NEGATION
+    symbol = SYMBOLS['NEGATION']
 
     def eval(self):
         return inv(self.prop)
 
 
 class DisjunctionOp(BinaryOp, Operation):
-    symbol = Symbols.DISJUNCTION
+    symbol = SYMBOLS['DISJUNCTION']
 
     def eval(self):
         return or_(self.prop_l, self.prop_r)
 
 
 class ConjunctionOp(BinaryOp, Operation):
-    symbol = Symbols.CONJUNCTION
+    symbol = SYMBOLS['CONJUNCTION']
 
     def eval(self):
         return and_(self.prop_l, self.prop_r)
 
 
 class ImplicationOp(BinaryOp, Operation):
-    symbol = Symbols.IMPLICATION
+    symbol = SYMBOLS['IMPLICATION']
 
     def eval(self):
         return or_(inv(self.prop_l), self.prop_r)
 
 
 class EquivalenceOp(BinaryOp, Operation):
-    symbol = Symbols.EQUIVALENCE
+    symbol = SYMBOLS['EQUIVALENCE']
 
     def eval(self):
         return and_(or_(self.prop_l, inv(self.prop_r)), or_(inv(self.prop_l), self.prop_r))
