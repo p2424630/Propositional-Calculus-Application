@@ -56,8 +56,19 @@ class SectionsModel(BaseModel):
     Sections: List[str]
 
 
+# class ExerciseModel(BaseModel):
+#     Question: str
+#     Propositions: List[str]
+
+
 class ExercisesModel(BaseModel):
-    Exercises: List[Dict[str, str]]
+    Exercises: List[Dict]
+
+
+class ExerciseEvalModel(BaseModel):
+    Proposition: str
+    t_proposition: str
+    Result: bool
 
 
 class PropException(Exception):
@@ -90,7 +101,7 @@ async def calc_prop(prop):
 
 
 @app.get("/api/exercises", response_model=SectionsModel)
-async def exercise():
+async def ex_sections():
     try:
         return {
             'Sections': list(exercises.exer.keys())
@@ -99,11 +110,26 @@ async def exercise():
         raise PropException(err=repr(e))
 
 
-@app.get("/api/exercises/{exercise_id}", response_model=ExercisesModel)
-async def exercise(exercise_id):
+@app.get("/api/exercises/{section}", response_model=ExercisesModel)
+async def sections_ex(section):
     try:
         return {
-            'Exercises': exercises.exer[exercise_id]
+            'Exercises': exercises.exer[section],
+        }
+    except Exception as e:
+        raise PropException(err=repr(e))
+
+
+@app.get("/api/exercises/eval/{q_prop}", response_model=ExerciseEvalModel)
+async def exercise_eval(q_prop, method, t_prop):
+    try:
+        q_proposition = pcabuilder.InitProp(q_prop)
+        t_proposition = pcabuilder.InitProp(t_prop)
+        q_result = pcabuilder.InitProp(str(getattr(q_proposition, method)()))
+        return {
+            'Proposition': str(q_result),
+            't_proposition': str(t_proposition),
+            'Result': q_result == t_proposition,
         }
     except Exception as e:
         raise PropException(err=repr(e))

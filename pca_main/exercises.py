@@ -10,31 +10,46 @@
 #
 # class DeMorgan(Exercise):
 #     pass
+from pca_main import pcabuilder
 
 
 de_morgan = [
     {
-        'prop': 'Q or P',
-        'question': f'Apply De Morgan law to the following proposition: Q or P'
+        'question': "Apply De Morgan's law to the following propositions",
+        'eval_method': pcabuilder.InitProp.de_morgan.__name__,
+        'props': ['Q or (P or R)', 'Q or P']
     },
     {
-        'prop': 'Q or (P or R)',
-        'question': "Apply De Morgan's law to the following proposition: Q or (P or R)"
+        'question': "Ex2",
+        'eval_method': pcabuilder.InitProp.de_morgan.__name__,
+        'props': ['Q or (P or R)', 'Q or P']
     }
 ]
 
-asos = [
+involution = [
     {
-        'prop': 'E or Z',
-        'question': f'proposition: E or Z'
+        'question': "Using the Involution law, which removes obsolete double negations, "
+                    "simplify the propositions below",
+        'eval_method': pcabuilder.InitProp.involution.__name__,
+        'props': ['not not A', 'not (not not (Q or not not P))']
+    }
+]
+
+max_min = [
+    {
+        'question': "Using the Minimum Law, simplify the following propositions",
+        'eval_method': pcabuilder.InitProp.minimum.__name__,
+        'props': ['A or false', 'A and (B or false)']
     },
     {
-        'prop': 'E or Z iff E',
-        'question': "proposition: E or Z iff E"
+        'question': "Using the Maximum law, simplify the propositions below",
+        'eval_method': pcabuilder.InitProp.maximum.__name__,
+        'props': ['A or true', 'A and (B or true)']
     }
 ]
 
 exer = {
     'de_morgan': de_morgan,
-    'asos': asos
+    'involution': involution,
+    'max_min': max_min
 }
