@@ -92,15 +92,18 @@ class TestInitProp(unittest.TestCase):
         self.assertTrue(pcabuilder.InitProp('(not(A and B)) ⇔ ((not A) or (not B))').tautology())
         self.assertTrue(pcabuilder.InitProp('(not(A or B)) ⇔ ((not A) and (not B))').tautology())
         self.assertEqual(pcabuilder.InitProp('¬(A or B)').de_morgan(),
-                         pcaprop.ConjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')),
-                                               pcaprop.NegationOp(pcaprop.Variable('B'))))
+                         pcaprop.NegationOp(pcaprop.NegationOp(
+                             pcaprop.ConjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')),
+                                                   pcaprop.NegationOp(pcaprop.Variable('B'))))))
         self.assertEqual(pcabuilder.InitProp('¬(A and B)').de_morgan(),
-                         pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')),
-                                               pcaprop.NegationOp(pcaprop.Variable('B'))))
-        self.assertEqual(pcabuilder.InitProp('A or ¬(A and B)').de_morgan(),
-                         pcaprop.DisjunctionOp(pcaprop.Variable('A'),
-                                               pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')),
-                                                                     pcaprop.NegationOp(pcaprop.Variable('B')))))
+                         pcaprop.NegationOp(pcaprop.NegationOp(
+                             pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')),
+                                                   pcaprop.NegationOp(pcaprop.Variable('B'))))))
+        to_test = pcaprop.NegationOp(
+            pcaprop.ConjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.NegationOp(pcaprop.NegationOp(
+                pcaprop.NegationOp(pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')),
+                                                         pcaprop.NegationOp(pcaprop.Variable('B'))))))))
+        self.assertEqual(pcabuilder.InitProp('A or ¬(A and B)').de_morgan(), to_test)
 
     def test_dijkstra_rule(self):
         self.assertTrue(pcabuilder.InitProp('(((A ∧ B) ⇔ A) ⇔ B) ⇔ (A ∨ B)').tautology())
@@ -144,6 +147,8 @@ class TestInitProp(unittest.TestCase):
                         pcaprop.EquivalenceOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
         self.assertTrue(pcabuilder.InitProp('A and (B and top)').maximum() ==
                         pcaprop.ConjunctionOp(pcaprop.Variable('A'), pcaprop.Variable('B')))
+        self.assertTrue(pcabuilder.InitProp('Z iff (A or (B or top))').maximum() ==
+                        pcaprop.EquivalenceOp(pcaprop.Variable('Z'), pcaprop.TrueProp()))
 
     def test_minimum(self):
         self.assertTrue(pcabuilder.InitProp('A or false').minimum() == pcaprop.Variable('A'))
@@ -153,6 +158,8 @@ class TestInitProp(unittest.TestCase):
         self.assertTrue(pcabuilder.InitProp('false and (A iff B)').minimum() == pcaprop.FalseProp())
         self.assertTrue(pcabuilder.InitProp('B iff (A and (false and (A iff B)))').minimum() ==
                         pcaprop.EquivalenceOp(pcaprop.Variable('B'), pcaprop.FalseProp()))
+        self.assertTrue(pcabuilder.InitProp('Z iff (A and (B and bot))').minimum() ==
+                        pcaprop.EquivalenceOp(pcaprop.Variable('Z'), pcaprop.FalseProp()))
 
     def test_involution(self):
         self.assertTrue(pcabuilder.InitProp('not not not not A').involution() == pcaprop.Variable('A'))

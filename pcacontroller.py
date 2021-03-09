@@ -1,12 +1,12 @@
 # @Author: GKarseras
 # @Date:   22 Jan 2021 14:04
 
-from typing import List
+from typing import List, Dict
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from pca_main import pcabuilder
+from pca_main import pcabuilder, exercises
 
 app = FastAPI()
 
@@ -52,6 +52,14 @@ class CalcInterpModel(BaseModel):
     Interpretations: List[List[bool]]
 
 
+class SectionsModel(BaseModel):
+    Sections: List[str]
+
+
+class ExercisesModel(BaseModel):
+    Exercises: List[Dict[str, str]]
+
+
 class PropException(Exception):
     def __init__(self, err: str):
         self.err = err
@@ -75,7 +83,27 @@ async def calc_prop(prop):
             'Tautology': bool(r.tautology()),
             'Contradiction': bool(r.contradiction()),
             'Variables': [variable.name for variable in r.unique_vars()],
-            'Interpretations': [[bool(bool_val) for bool_val in interp] for interp in r.interpretations()],
+            'Interpretations': [[bool(bool_val) for bool_val in interp] for interp in r.interpretations()]
+        }
+    except Exception as e:
+        raise PropException(err=repr(e))
+
+
+@app.get("/api/exercises", response_model=SectionsModel)
+async def exercise():
+    try:
+        return {
+            'Sections': list(exercises.exer.keys())
+        }
+    except Exception as e:
+        raise PropException(err=repr(e))
+
+
+@app.get("/api/exercises/{exercise_id}", response_model=ExercisesModel)
+async def exercise(exercise_id):
+    try:
+        return {
+            'Exercises': exercises.exer[exercise_id]
         }
     except Exception as e:
         raise PropException(err=repr(e))

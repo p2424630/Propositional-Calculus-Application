@@ -4,7 +4,7 @@
 from pca_main import pcabuilder
 from pca_main import pcaprop
 
-a = pcabuilder.InitProp('A and (B and top)')
+a = pcabuilder.InitProp('A or not A iff (B implies (C or (C and C)))')
 # print(f'prop: {a.prop}')
 # print(f'parsed: {a.parsed}')
 # print(f'sat: {a.satisfiable()}')

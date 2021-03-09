@@ -5,7 +5,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from operator import and_, inv, or_
 
-
 SYMBOLS = {
     'UNARY': 'UN_OP',
     'BINARY': 'BI_OP',
@@ -107,7 +106,10 @@ class UnaryOp(Proposition):
         self._prop = prop
 
     def __str__(self):
-        return f'({self.__class__.symbol}{str(self._prop)})'
+        if isinstance(self._prop, UnaryOp):
+            return f'{self.__class__.symbol}({str(self._prop)})'
+        else:
+            return f'{self.__class__.symbol}{str(self._prop)}'
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._prop)})'
