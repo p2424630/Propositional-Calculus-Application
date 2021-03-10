@@ -56,18 +56,13 @@ class SectionsModel(BaseModel):
     Sections: List[str]
 
 
-# class ExerciseModel(BaseModel):
-#     Question: str
-#     Propositions: List[str]
-
-
 class ExercisesModel(BaseModel):
     Exercises: List[Dict]
 
 
 class ExerciseEvalModel(BaseModel):
-    Proposition: str
-    t_proposition: str
+    Result_Prop: str
+    Given_Prop: str
     Result: bool
 
 
@@ -121,15 +116,18 @@ async def sections_ex(section):
 
 
 @app.get("/api/exercises/eval/{q_prop}", response_model=ExerciseEvalModel)
-async def exercise_eval(q_prop, method, t_prop):
+async def exercise_eval(q_prop, methods, t_prop):
     try:
         q_proposition = pcabuilder.InitProp(q_prop)
         t_proposition = pcabuilder.InitProp(t_prop)
-        q_result = pcabuilder.InitProp(str(getattr(q_proposition, method)()))
+        methods = [getattr(pcabuilder.InitProp, method) for method in methods.split(',')]
+        for method in methods:
+            q_proposition = method(q_proposition)
+            q_proposition = pcabuilder.InitProp(str(q_proposition))
         return {
-            'Proposition': str(q_result),
-            't_proposition': str(t_proposition),
-            'Result': q_result == t_proposition,
+            'Result_Prop': str(q_proposition),
+            'Given_Prop': str(t_proposition),
+            'Result': q_proposition == t_proposition,
         }
     except Exception as e:
         raise PropException(err=repr(e))
