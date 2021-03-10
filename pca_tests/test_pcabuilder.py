@@ -167,8 +167,10 @@ class TestInitProp(unittest.TestCase):
                         pcaprop.DisjunctionOp(pcaprop.Variable('B'), pcaprop.Variable('A')))
 
     def test_implication(self):
-        self.assertTrue(pcabuilder.InitProp('A implies B').implication() ==
-                        pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.Variable('B')))
+        self.assertTrue(pcabuilder.InitProp('A implies (B implies C) ').implication() ==
+                        pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')),
+                                              pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('B')),
+                                                                    pcaprop.Variable('C'))))
         self.assertTrue(pcabuilder.InitProp('A or not (A implies B)').implication() ==
                         pcaprop.DisjunctionOp(pcaprop.Variable('A'), pcaprop.NegationOp(
                             pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.Variable('B')))))

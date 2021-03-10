@@ -28,7 +28,7 @@ de_morgan = [
 
 involution = [
     {
-        'question': "Using the Involution law, which removes obsolete double negations, "
+        'question': "Using the Involution law, which removes double negations, "
                     "simplify the propositions below",
         'eval_methods': [pcabuilder.InitProp.involution.__name__],
         'props': ['not not A', 'not (not not (Q or not not P))']
@@ -48,7 +48,18 @@ max_min = [
     }
 ]
 
+satisfiable = [
+    {
+        'question': "Are the following propositions satisfiable "
+                    "(an interpretation which the proposition results in true)?",
+        'eval_methods': [pcabuilder.InitProp.satisfiable.__name__],
+        'props': ['Q and false', 'Q or (P or R)', 'Q or P', 'Q and (P iff Q)']
+    }
+]
+
+
 exer = {
+    'satisfiable': satisfiable,
     'involution': involution,
     'max_min': max_min,
     'de_morgan': de_morgan,

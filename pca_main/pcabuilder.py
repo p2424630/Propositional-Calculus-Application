@@ -45,20 +45,20 @@ class InitProp:
             interp_values.append(_eval_prop(interp_prop))
             yield interp_values
 
-    def satisfiable(self) -> bool:
+    def satisfiable(self):
         for i in self.interpretations():
             if i[-1]:
-                return True
-        return False
+                return pcaprop.TrueProp()
+        return pcaprop.FalseProp()
 
-    def tautology(self) -> bool:
+    def tautology(self):
         for i in self.interpretations():
             if not i[-1]:
-                return False
-        return True
+                return pcaprop.FalseProp()
+        return pcaprop.TrueProp()
 
-    def contradiction(self) -> bool:
-        return not self.satisfiable()
+    def contradiction(self):
+        return pcaprop.FalseProp() if self.satisfiable() else pcaprop.TrueProp()
 
     def idempotence(self):
         return _idempotence(self.parsed)
