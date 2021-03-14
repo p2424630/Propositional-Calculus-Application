@@ -1,15 +1,6 @@
 # @Author: GKarseras
 # @Date:   22 Feb 17:10
 
-# class Exercise:
-#
-#     def __init__(self, prop, question):
-#         self.prop = prop
-#         self.question = question
-#
-#
-# class DeMorgan(Exercise):
-#     pass
 from pca_main import pcabuilder
 
 
@@ -17,10 +8,10 @@ de_morgan = [
     {
         'question': "Apply De Morgan's law to the following propositions",
         'eval_methods': [pcabuilder.InitProp.de_morgan.__name__],
-        'props': ['Q or (P or R)', 'Q or P']
+        'props': ['Q or P', 'Q or (P or R)']
     },
     {
-        'question': "Apply De Morgan's law and then Involution to simplify the following propositions",
+        'question': "Apply De Morgan's and then Involution law to simplify the following propositions",
         'eval_methods': [pcabuilder.InitProp.de_morgan.__name__, pcabuilder.InitProp.involution.__name__],
         'props': ['not (Q or P)', 'Q or not(P)']
     }
@@ -50,15 +41,14 @@ max_min = [
 
 satisfiable = [
     {
-        'question': "Are the following propositions satisfiable "
-                    "(an interpretation which the proposition results in true)?",
+        'question': "Are the following propositions satisfiable? Answer in either true or false",
         'eval_methods': [pcabuilder.InitProp.satisfiable.__name__],
         'props': ['Q and false', 'Q or (P or R)', 'Q or P', 'Q and (P iff Q)']
     }
 ]
 
 
-exer = {
+exercises = {
     'satisfiable': satisfiable,
     'involution': involution,
     'max_min': max_min,

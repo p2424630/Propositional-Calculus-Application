@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 from operator import and_, inv, or_
 
 SYMBOLS = {
-    'UNARY': 'UN_OP',
-    'BINARY': 'BI_OP',
+    'UNARY': 'UN_OP ',
+    'BINARY': ' BI_OP ',
     'EQUIVALENCE': ' \u21D4 ',
     'IMPLICATION': ' \u21D2 ',
     'DISJUNCTION': ' \u2228 ',

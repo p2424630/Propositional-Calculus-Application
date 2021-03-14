@@ -98,7 +98,7 @@ async def calc_prop(prop):
 async def ex_sections():
     try:
         return {
-            'Sections': list(exercises.exer.keys())
+            'Sections': list(exercises.exercises.keys())
         }
     except Exception as e:
         raise PropException(err=repr(e))
@@ -108,7 +108,7 @@ async def ex_sections():
 async def sections_ex(section):
     try:
         return {
-            'Exercises': exercises.exer[section],
+            'Exercises': exercises.exercises[section],
         }
     except Exception as e:
         raise PropException(err=repr(e))
