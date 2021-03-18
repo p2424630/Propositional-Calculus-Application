@@ -3,17 +3,11 @@
 
 from pca_main import pcabuilder
 
-
-de_morgan = [
+satisfiable = [
     {
-        'question': "Apply De Morgan's law to the following propositions",
-        'eval_methods': [pcabuilder.InitProp.de_morgan.__name__],
-        'props': ['Q or P', 'Q or (P or R)']
-    },
-    {
-        'question': "Apply De Morgan's and then Involution law to simplify the following propositions",
-        'eval_methods': [pcabuilder.InitProp.de_morgan.__name__, pcabuilder.InitProp.involution.__name__],
-        'props': ['not (Q or P)', 'Q or not(P)']
+        'question': "Are the following propositions satisfiable? Answer in either true or false",
+        'eval_methods': [pcabuilder.InitProp.satisfiable.__name__],
+        'props': ['Q and false', 'Q or (P or R)', 'Q or P', 'Q ∧ (P ⇔ Q)']
     }
 ]
 
@@ -38,15 +32,18 @@ max_min = [
         'props': ['A or true', 'A and (B or true)']
     }
 ]
-
-satisfiable = [
+de_morgan = [
     {
-        'question': "Are the following propositions satisfiable? Answer in either true or false",
-        'eval_methods': [pcabuilder.InitProp.satisfiable.__name__],
-        'props': ['Q and false', 'Q or (P or R)', 'Q or P', 'Q and (P iff Q)']
+        'question': "Apply De Morgan's law to the following propositions",
+        'eval_methods': [pcabuilder.InitProp.de_morgan.__name__],
+        'props': ['Q or P', 'Q or (P or R)']
+    },
+    {
+        'question': "Apply De Morgan's and then Involution law to simplify the following propositions",
+        'eval_methods': [pcabuilder.InitProp.de_morgan.__name__, pcabuilder.InitProp.involution.__name__],
+        'props': ['not (Q or P)', 'Q or not(P)']
     }
 ]
-
 
 exercises = {
     'satisfiable': satisfiable,

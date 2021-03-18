@@ -35,7 +35,9 @@ class InitProp:
         prop_vars = self.unique_vars()
         len_prop_vars = len(prop_vars)
         if len_prop_vars < 1:
-            raise ValueError('Number of variables must be at least 1')
+            # Return empty interpretation as this means the proposition is composed without any variables,
+            # as such it can only take one, the current, interpretation
+            return
         elif len_prop_vars > max_vars:
             raise ValueError(f'Variable length {len_prop_vars}, exceeded the allowed {max_vars}')
         for comb in product([pcaprop.FalseProp(), pcaprop.TrueProp()], repeat=len_prop_vars):
@@ -46,12 +48,16 @@ class InitProp:
             yield interp_values
 
     def satisfiable(self):
+        if len(self.unique_vars()) < 1:
+            return _eval_prop(self.parsed)
         for i in self.interpretations():
             if i[-1]:
                 return pcaprop.TrueProp()
         return pcaprop.FalseProp()
 
     def tautology(self):
+        if len(self.unique_vars()) < 1:
+            return _eval_prop(self.parsed)
         for i in self.interpretations():
             if not i[-1]:
                 return pcaprop.FalseProp()
