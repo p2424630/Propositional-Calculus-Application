@@ -1,4 +1,4 @@
-lark-parser==0.11.1
-setuptools==49.6.0
-fastapi==0.63.0
-pydantic==1.7.3
+lark-parser>=0.11.1
+setuptools>=49.6.0
+fastapi>=0.63.0
+pydantic>=1.7.3

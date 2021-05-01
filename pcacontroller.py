@@ -6,12 +6,14 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from pca_main import pcabuilder, exercises
+from pca_main import pcabuilder
+from pca_main import exercises
 
 app = FastAPI()
 
 origins = [
     "http://localhost:8080",
+    "http://127.0.0.1:8080"
 ]
 
 app.add_middleware(
@@ -31,27 +33,6 @@ class CalcModel(BaseModel):
     Interpretations: List[List[bool]]
 
 
-class CalcSatModel(BaseModel):
-    Proposition: str
-    Satisfiable: bool
-
-
-class CalcTautModel(BaseModel):
-    Proposition: str
-    Tautology: bool
-
-
-class CalcContrModel(BaseModel):
-    Proposition: str
-    Contradiction: bool
-
-
-class CalcInterpModel(BaseModel):
-    Proposition: str
-    Variables: List[str]
-    Interpretations: List[List[bool]]
-
-
 class SectionsModel(BaseModel):
     Sections: List[str]
 
@@ -65,16 +46,20 @@ class ExerciseEvalModel(BaseModel):
     Result: bool
 
 
+class PartialEvalModel(BaseModel):
+    Result: str
+
+
 class PropException(Exception):
-    def __init__(self, err: str):
-        self.err = err
+    def __init__(self, error: str):
+        self.error = error
 
 
 @app.exception_handler(PropException)
 async def prop_exception_handler(request: Request, exc: PropException):
     return JSONResponse(
         status_code=406,
-        content={"Error": exc.err},
+        content={"Error": exc.error},
     )
 
 
@@ -91,7 +76,7 @@ async def calc_prop(prop):
             'Interpretations': [[bool(bool_val) for bool_val in interp] for interp in r.interpretations()]
         }
     except Exception as e:
-        raise PropException(err=repr(e))
+        raise PropException(error=str(e))
 
 
 @app.get("/api/exercises", response_model=SectionsModel)
@@ -101,7 +86,7 @@ async def ex_sections():
             'Sections': list(exercises.exercises.keys())
         }
     except Exception as e:
-        raise PropException(err=repr(e))
+        raise PropException(error=str(e))
 
 
 @app.get("/api/exercises/{section}", response_model=ExercisesModel)
@@ -111,73 +96,38 @@ async def sections_ex(section):
             'Exercises': exercises.exercises[section],
         }
     except Exception as e:
-        raise PropException(err=repr(e))
+        raise PropException(error=str(e))
 
 
 @app.get("/api/exercises/eval/{q_prop}", response_model=ExerciseEvalModel)
 async def exercise_eval(q_prop, methods, t_prop):
     try:
-        q_proposition = pcabuilder.InitProp(q_prop)
+        q_proposition = apply_methods(q_prop, methods)
         t_proposition = pcabuilder.InitProp(t_prop)
-        methods = [getattr(pcabuilder.InitProp, method) for method in methods.split(',')]
-        for method in methods:
-            q_proposition = method(q_proposition)
-            q_proposition = pcabuilder.InitProp(str(q_proposition))
         return {
             'Result_Prop': str(q_proposition),
             'Result': q_proposition == t_proposition,
         }
     except Exception as e:
-        raise PropException(err=repr(e))
+        raise PropException(error=str(e))
 
 
-@app.get("/api/sat/{prop}", response_model=CalcSatModel)
-async def calc_prop_sat(prop):
+@app.get("/api/partial/{prop}", response_model=PartialEvalModel)
+async def partial_application(prop, methods):
     try:
-        r = pcabuilder.InitProp(prop)
         return {
-            'Proposition': str(r),
-            'Satisfiable': bool(r.satisfiable())
+            'Result': str(apply_methods(prop, methods)),
         }
     except Exception as e:
-        raise PropException(err=repr(e))
+        raise PropException(error=str(e))
 
 
-@app.get("/api/taut/{prop}", response_model=CalcTautModel)
-async def calc_prop_taut(prop):
-    try:
-        r = pcabuilder.InitProp(prop)
-        return {
-            'Proposition': str(r),
-            'Tautology': bool(r.tautology())
-        }
-    except Exception as e:
-        raise PropException(err=repr(e))
-
-
-@app.get("/api/contr/{prop}", response_model=CalcContrModel)
-async def calc_prop_contr(prop):
-    try:
-        r = pcabuilder.InitProp(prop)
-        return {
-            'Proposition': str(r),
-            'Contradiction': bool(r.contradiction())
-        }
-    except Exception as e:
-        raise PropException(err=repr(e))
-
-
-@app.get("/api/interp/{prop}", response_model=CalcInterpModel)
-async def calc_prop_interp(prop):
-    try:
-        r = pcabuilder.InitProp(prop)
-        return {
-            'Proposition': str(r),
-            'Variables': [variable.name for variable in r.unique_vars()],
-            'Interpretations': [[bool(bool_val) for bool_val in interp] for interp in r.interpretations()]
-        }
-    except Exception as e:
-        raise PropException(err=repr(e))
+def apply_methods(prop, methods):
+    prop = pcabuilder.InitProp(prop)
+    for met in [getattr(pcabuilder.InitProp, method) for method in methods.split(',')]:
+        prop = met(prop)
+        prop = pcabuilder.InitProp(str(prop))
+    return prop
 
 
 # if __name__ == '__main__':

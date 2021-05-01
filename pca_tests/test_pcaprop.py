@@ -13,6 +13,19 @@ class TestProposition(unittest.TestCase):
         self.assertTrue(pcaprop.DisjunctionOp(a, b.eval()).eval())
         self.assertFalse(pcaprop.ConjunctionOp(b.eval(), a).eval())
 
+    def test_precedence(self):
+        a = pcaprop.Variable("A")
+        b = pcaprop.Variable("B")
+        self.assertEqual((a + b >> ~a * b), pcaprop.ImplicationOp(
+          pcaprop.DisjunctionOp(a, b), pcaprop.ConjunctionOp(pcaprop.NegationOp(a), b)))
+
+    def test_creation(self):
+        a = pcaprop.Variable("A")
+        b = pcaprop.Variable("B")
+        c = pcaprop.Variable("C")
+        self.assertEqual(a >> (~(a * b) + c), pcaprop.ImplicationOp(
+            a, pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.ConjunctionOp(a, b)), c)))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -28,9 +28,9 @@ GRAMMAR = '''
              %import common.WS
              %ignore WS
          '''
+# ?exp_or_and: atom ((OP_DISJUNCTION | OP_CONJUNCTION) atom)*
 
 
-# TODO: Fix value unpacking.
 class PropTransformer(Transformer):
 
     def exp_iff(self, value):
@@ -38,6 +38,10 @@ class PropTransformer(Transformer):
 
     def exp_imp(self, value):
         return pcaprop.ImplicationOp(value[0], value[2])
+
+    # def exp_or_and(self, value):
+    #     print(value)
+    #     return getattr(self, f'exp_{value[1]}')(value)
 
     def exp_or(self, value):
         return pcaprop.DisjunctionOp(value[0], value[2])
@@ -59,6 +63,17 @@ class PropTransformer(Transformer):
 
     def atom_var(self, value):
         return pcaprop.Variable(value[0])
+
+
+# def helper_fun(value):
+#     c = [v for v in value[1::2]]  # List slicing - list[begin:finish:step]
+#     v = [v for v in value[0::2]]
+#     print(c)
+#     print(v)
+#     # for i, v in enumerate(value):
+#
+#     # print(f'{i}: {v}')
+#     # l.append(getattr(self, f'exp_{v}')(value))
 
 
 PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff', transformer=PropTransformer())

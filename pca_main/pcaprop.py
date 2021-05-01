@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from operator import and_, inv, or_
 
 SYMBOLS = {
     'UNARY': 'UN_OP ',
@@ -19,33 +18,48 @@ SYMBOLS = {
 
 
 class Proposition:
+    """
+    Base proposition class, overloads default bitwise operators
+    + Disjunction
+    * Conjunction
+    ~ Negation
+    >> Implication
+    """
 
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__)
 
-    def __or__(self, other):
-        if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
-            return TrueProp() if (self or other) else FalseProp()
-        else:
-            raise TypeError
+    def __add__(self, other):
+        if all(isinstance(prop, (TrueProp, FalseProp)) for prop in [self, other]):
+            if isinstance(self, TrueProp) or isinstance(other, TrueProp):
+                return TrueProp()
+            return FalseProp()
+        return DisjunctionOp(self, other)
 
-    def __ror__(self, other):
-        return self.__or__(other)
+    def __radd__(self, other):
+        return other.__or__(self)
 
-    def __and__(self, other):
-        if all(isinstance(prop, (bool, TrueProp, FalseProp)) for prop in [self, other]):
-            return TrueProp() if (self and other) else FalseProp()
-        else:
-            raise TypeError
+    def __mul__(self, other):
+        if all(isinstance(prop, (TrueProp, FalseProp)) for prop in [self, other]):
+            if isinstance(self, FalseProp) or isinstance(other, FalseProp):
+                return FalseProp()
+            return TrueProp()
+        return ConjunctionOp(self, other)
 
-    def __rand__(self, other):
-        return self.__and__(other)
+    def __rmul__(self, other):
+        return other.__and__(self)
 
     def __invert__(self):
-        if isinstance(self, (bool, TrueProp, FalseProp)):
-            return TrueProp() if (not self) else FalseProp()
-        else:
-            raise TypeError
+        if isinstance(self, TrueProp):
+            return FalseProp()
+        elif isinstance(self, FalseProp):
+            return TrueProp()
+        return NegationOp(self)
+
+    def __rshift__(self, other):
+        if all(isinstance(prop, (TrueProp, FalseProp)) for prop in [self, other]):
+            return ~self + other
+        return ImplicationOp(self, other)
 
 
 class Variable(Proposition):
@@ -161,32 +175,32 @@ class NegationOp(UnaryOp, Operation):
     symbol = SYMBOLS['NEGATION']
 
     def eval(self):
-        return inv(self.prop)
+        return ~self.prop
 
 
 class DisjunctionOp(BinaryOp, Operation):
     symbol = SYMBOLS['DISJUNCTION']
 
     def eval(self):
-        return or_(self.prop_l, self.prop_r)
+        return self.prop_l + self.prop_r
 
 
 class ConjunctionOp(BinaryOp, Operation):
     symbol = SYMBOLS['CONJUNCTION']
 
     def eval(self):
-        return and_(self.prop_l, self.prop_r)
+        return self.prop_l * self.prop_r
 
 
 class ImplicationOp(BinaryOp, Operation):
     symbol = SYMBOLS['IMPLICATION']
 
     def eval(self):
-        return or_(inv(self.prop_l), self.prop_r)
+        return self.prop_l >> self.prop_r
 
 
 class EquivalenceOp(BinaryOp, Operation):
     symbol = SYMBOLS['EQUIVALENCE']
 
     def eval(self):
-        return and_(or_(self.prop_l, inv(self.prop_r)), or_(inv(self.prop_l), self.prop_r))
+        return (self.prop_l >> self.prop_r) * (self.prop_r >> self.prop_l)
