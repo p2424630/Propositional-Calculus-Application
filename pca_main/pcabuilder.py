@@ -5,12 +5,36 @@ from itertools import product
 from pca_main import pcaprop, pcaparser
 
 
-class InitProp:
+class Laws:
     __slots__ = ('proposition', 'parsed')
 
     def __init__(self, proposition: str) -> None:
         self.proposition = proposition
         self.parsed = pcaparser.PARSER.parse(proposition)
+
+    def commutativity(self):
+        return _commutativity(self.parsed)
+
+    def de_morgan(self):
+        return _de_morgan(self.parsed)
+
+    def idempotence(self):
+        return _idempotence(self.parsed)
+
+    def implication(self):
+        return _implication(self.parsed)
+
+    def involution(self):
+        return _involution(self.parsed)
+
+    def maximum(self):
+        return _maximum(self.parsed)
+
+    def minimum(self):
+        return _minimum(self.parsed)
+
+
+class InitProp(Laws):
 
     def __eq__(self, other) -> bool:
         """
@@ -65,45 +89,6 @@ class InitProp:
 
     def contradiction(self):
         return pcaprop.FalseProp() if self.satisfiable() else pcaprop.TrueProp()
-
-    def idempotence(self):
-        return _idempotence(self.parsed)
-
-    def commutativity(self):
-        return _commutativity(self.parsed)
-
-    def associativity(self):
-        return _associativity(self.parsed)
-
-    def absorption(self):
-        return _absorption(self.parsed)
-
-    def distributivity(self):
-        return _distributivity(self.parsed)
-
-    def maximum(self):
-        return _maximum(self.parsed)
-
-    def minimum(self):
-        return _minimum(self.parsed)
-
-    def excluded_middle(self):
-        return _excluded_middle(self.parsed)
-
-    def de_morgan(self):
-        return _de_morgan(self.parsed)
-
-    def implication(self):
-        return _implication(self.parsed)
-
-    def contrapositive(self):
-        return _contrapositive(self.parsed)
-
-    def equivalence(self):
-        return _equivalence(self.parsed)
-
-    def involution(self):
-        return _involution(self.parsed)
 
 
 def _get_vars(op):
@@ -236,46 +221,3 @@ def _implication(op):
         if isinstance(op, pcaprop.ImplicationOp):
             return pcaprop.DisjunctionOp(pcaprop.NegationOp(_implication(op.prop_l)), _implication(op.prop_r))
         return op.__class__(_implication(op.prop_l), _implication(op.prop_r))
-
-
-def _excluded_middle(op):
-    # a ∧ ¬ a  ≡  false
-    # a ∨ ¬ a  ≡  true
-    return
-
-
-def _associativity(op):
-    # (a ∧ b) ∧ c  ≡  a ∧ (b ∧ c)
-    # (a ∨ b) ∨ c  ≡  a ∨ (b ∨ c)
-    return
-
-
-def _absorption(op):
-    # a ∧ (a ∨ b)  ≡  a
-    # a ∨ (a ∧ b)  ≡  a
-    # a ∧ (¬ a ∨ b)  ≡  a ∧ b
-    # a ∨ (¬ a ∧ b)  ≡  a ∨ b
-    return
-
-
-def _distributivity(op):
-    # a ∧ (b ∨ c)  ≡  (a ∧ b) ∨ (a ∧ c)
-    # a ∨ (b ∧ c)  ≡  (a ∨ b) ∧ (a ∨ c)
-    return
-
-
-def _contrapositive(op):
-    # a ⇒ b  ≡  ¬ b ⇒ ¬ a
-    # ⇒ Distribution 	c ⇒ (a ∧ b)  ≡  (c ⇒ a) ∧ (c ⇒ b)
-    #                	(a ∨ b) ⇒ c  ≡  (a ⇒ c) ∧ (b ⇒ c)
-    return
-
-
-def _equivalence(op):
-    # a ⇔ b  ≡  (a ⇒ b) ∧ (b ⇒ a)
-    # a ⇔ b  ≡  (a ∧ b) ∨ ¬ (a ∨ b)
-    # a ⇔ b  ≡  ¬ a ⇔ ¬ b
-    # a ⇒ b  ≡  a ⇔ (a ∧ b)
-    # b ⇒ a  ≡  a ⇔ (a ∨ b)
-    # a ∨ (b ⇔ c)  ≡  (a ∨ b) ⇔ (a ∨ c)
-    return

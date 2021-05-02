@@ -19,10 +19,11 @@ SYMBOLS = {
 
 class Proposition:
     """
-    Base proposition class, overloads default bitwise operators
-    + Disjunction
-    * Conjunction
+    Base proposition class, overloads default bitwise operators.
+    Overloading -add- instead of -or- and -mul- instead of -and- due to precedence with -rshift-.
     ~ Negation
+    * Conjunction
+    + Disjunction
     >> Implication
     """
 

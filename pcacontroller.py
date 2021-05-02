@@ -37,6 +37,10 @@ class SectionsModel(BaseModel):
     Sections: List[str]
 
 
+class AllLawsModel(BaseModel):
+    Laws: List[str]
+
+
 class ExercisesModel(BaseModel):
     Exercises: List[Dict]
 
@@ -122,14 +126,20 @@ async def partial_application(prop, methods):
         raise PropException(error=str(e))
 
 
+@app.get("/api/laws", response_model=AllLawsModel)
+async def all_laws():
+    try:
+        return {
+            'Laws': [law for law in dir(pcabuilder.Laws) if
+                     not law.startswith("__") and callable(getattr(pcabuilder.Laws, law))]
+        }
+    except Exception as e:
+        raise PropException(error=str(e))
+
+
 def apply_methods(prop, methods):
     prop = pcabuilder.InitProp(prop)
     for met in [getattr(pcabuilder.InitProp, method) for method in methods.split(',')]:
         prop = met(prop)
         prop = pcabuilder.InitProp(str(prop))
     return prop
-
-
-# if __name__ == '__main__':
-#     import uvicorn
-#     uvicorn.run(app, port=8085, host='0.0.0.0')
