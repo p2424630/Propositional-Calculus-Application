@@ -160,6 +160,10 @@ class TestInitProp(unittest.TestCase):
                         pcaprop.EquivalenceOp(pcaprop.Variable('B'), pcaprop.FalseProp()))
         self.assertTrue(pcabuilder.InitProp('Z iff (A and (B and bot))').minimum() ==
                         pcaprop.EquivalenceOp(pcaprop.Variable('Z'), pcaprop.FalseProp()))
+        self.assertTrue(pcabuilder.InitProp('Z iff (not A or not(B or bot))').minimum() ==
+                        pcaprop.EquivalenceOp(pcaprop.Variable('Z'),
+                                              pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')),
+                                                                    pcaprop.NegationOp(pcaprop.Variable('B')))))
 
     def test_involution(self):
         self.assertTrue(pcabuilder.InitProp('not not not not A').involution() == pcaprop.Variable('A'))
