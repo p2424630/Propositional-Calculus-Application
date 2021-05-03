@@ -150,7 +150,11 @@ def _commutativity(op):
 def _maximum(op):
     if isinstance(op, (pcaprop.Variable, pcaprop.TrueProp, pcaprop.FalseProp)):
         return op
-    elif isinstance(op, pcaprop.UnaryOp):
+    elif isinstance(op, pcaprop.NegationOp):
+        if isinstance(op.prop, (pcaprop.FalseProp, pcaprop.TrueProp)):
+            return op.eval()
+        elif isinstance(op.prop, pcaprop.Variable):
+            return op
         return op.__class__(_maximum(op.prop))
     elif isinstance(op, pcaprop.BinaryOp):
         prop_l = _maximum(op.prop_l)
@@ -169,7 +173,11 @@ def _maximum(op):
 def _minimum(op):
     if isinstance(op, (pcaprop.Variable, pcaprop.TrueProp, pcaprop.FalseProp)):
         return op
-    elif isinstance(op, pcaprop.UnaryOp):
+    elif isinstance(op, pcaprop.NegationOp):
+        if isinstance(op.prop, (pcaprop.FalseProp, pcaprop.TrueProp)):
+            return op.eval()
+        elif isinstance(op.prop, pcaprop.Variable):
+            return op
         return op.__class__(_minimum(op.prop))
     elif isinstance(op, pcaprop.BinaryOp):
         prop_l = _minimum(op.prop_l)
