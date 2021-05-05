@@ -60,7 +60,7 @@ class InitProp(Laws):
         len_prop_vars = len(prop_vars)
         if len_prop_vars < 1:
             # Return empty interpretation as this means the proposition is composed without any variables,
-            # as such it can only take one, the current, interpretation
+            # which means it can only take one, the current, interpretation
             return
         elif len_prop_vars > max_vars:
             raise ValueError(f'Variable length {len_prop_vars}, exceeded the allowed {max_vars}')
@@ -150,11 +150,7 @@ def _commutativity(op):
 def _maximum(op):
     if isinstance(op, (pcaprop.Variable, pcaprop.TrueProp, pcaprop.FalseProp)):
         return op
-    elif isinstance(op, pcaprop.NegationOp):
-        if isinstance(op.prop, (pcaprop.FalseProp, pcaprop.TrueProp)):
-            return op.eval()
-        elif isinstance(op.prop, pcaprop.Variable):
-            return op
+    elif isinstance(op, pcaprop.UnaryOp):
         return op.__class__(_maximum(op.prop))
     elif isinstance(op, pcaprop.BinaryOp):
         prop_l = _maximum(op.prop_l)
@@ -173,11 +169,7 @@ def _maximum(op):
 def _minimum(op):
     if isinstance(op, (pcaprop.Variable, pcaprop.TrueProp, pcaprop.FalseProp)):
         return op
-    elif isinstance(op, pcaprop.NegationOp):
-        if isinstance(op.prop, (pcaprop.FalseProp, pcaprop.TrueProp)):
-            return op.eval()
-        elif isinstance(op.prop, pcaprop.Variable):
-            return op
+    elif isinstance(op, pcaprop.UnaryOp):
         return op.__class__(_minimum(op.prop))
     elif isinstance(op, pcaprop.BinaryOp):
         prop_l = _minimum(op.prop_l)
