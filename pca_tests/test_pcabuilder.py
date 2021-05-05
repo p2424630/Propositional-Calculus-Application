@@ -179,18 +179,6 @@ class TestInitProp(unittest.TestCase):
                         pcaprop.DisjunctionOp(pcaprop.Variable('A'), pcaprop.NegationOp(
                             pcaprop.DisjunctionOp(pcaprop.NegationOp(pcaprop.Variable('A')), pcaprop.Variable('B')))))
 
-    def test_associativity(self):
-        return
-
-    def test_absorption(self):
-        return
-
-    def test_excluded_middle(self):
-        return
-
-    def test_equivalence(self):
-        return
-
 
 if __name__ == '__main__':
     unittest.main()

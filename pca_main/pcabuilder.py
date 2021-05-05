@@ -141,7 +141,7 @@ def _commutativity(op):
     if isinstance(op, pcaprop.UnaryOp):
         return op.__class__(_commutativity(op.prop))
     elif isinstance(op, pcaprop.BinaryOp):
-        # Same order in case of implication or equivalence
+        # Same order for implication or equivalence
         if isinstance(op, (pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
             return op.__class__(_commutativity(op.prop_l), _commutativity(op.prop_r))
         return op.__class__(_commutativity(op.prop_r), _commutativity(op.prop_l))
