@@ -139,7 +139,8 @@ async def all_laws():
 
 def _apply_methods(prop, methods):
     prop = pcabuilder.InitProp(prop)
-    for met in [getattr(pcabuilder.InitProp, method) for method in methods.split(',')]:
-        prop = met(prop)
+    methods = [getattr(pcabuilder.InitProp, method) for method in methods.split(',')]
+    for method in methods:
+        prop = method(prop)
         prop = pcabuilder.InitProp(str(prop))
     return prop

@@ -3,9 +3,12 @@
 
 from setuptools import setup, find_packages
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='propcalc',
     extras_require=dict(test=['pytest']),
-    packages=find_packages(where='pca'),
-    package_dir={"": "pca"}
-)
+    packages=find_packages(where='pca_main'),
+    package_dir={"": "pca_main"},
+    install_requires = requirements)
