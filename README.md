@@ -32,6 +32,6 @@ functions.
 
 ## License
 
-> More info can be found [here](https://github.com/p2424630/PCA/blob/test/LICENSE)
+> More info can be found [here](https://github.com/p2424630/PCA/blob/main/LICENSE)
 
 The project is licenced under MIT.
