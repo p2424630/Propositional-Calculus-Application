@@ -8,7 +8,7 @@ used with the [Front-End](https://github.com/p2424630/PCA-Front).
 
 ***
 
-### Setup
+## Setup
 
 1. Have python installed (recommended miniconda)
 2. Run `pip install -e PCA_DIRECTORY`
@@ -17,7 +17,12 @@ used with the [Front-End](https://github.com/p2424630/PCA-Front).
 
 ***
 
-### Usage
+## Usage
+
+Main usage of this application is as an API server with a robust front-end as the one developed with it. It can still be
+used standalone as shown below, in this case the installation of the libraries: `fastapi`, `pydantic`, `uvicorn`
+and `starlette` is not necessary. An example is shown below, parsing a simple proposition and performing various
+functions.
 
 ![alt text][pcabuilder]
 
@@ -25,7 +30,8 @@ used with the [Front-End](https://github.com/p2424630/PCA-Front).
 
 ***
 
-### License
+## License
+
+> More info can be found [here](https://github.com/p2424630/PCA/blob/test/LICENSE)
 
 The project is MIT licenced.
-> More info can be found [here](https://github.com/p2424630/PCA/blob/test/LICENSE)
