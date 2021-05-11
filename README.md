@@ -26,7 +26,7 @@ functions.
 
 ![alt text][pcabuilder]
 
-[pcabuilder]: https://github.com/p2424630/PCA/blob/test/images/pcabuilder.JPG "pcabuilder image"
+[pcabuilder]: https://github.com/p2424630/PCA/blob/main/images/pcabuilder.JPG "pcabuilder image"
 
 ***
 
