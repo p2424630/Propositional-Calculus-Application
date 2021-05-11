@@ -11,4 +11,4 @@ setup(
     extras_require=dict(test=['pytest']),
     packages=find_packages(where='pca_main'),
     package_dir={"": "pca_main"},
-    install_requires = requirements)
+    install_requires=requirements)
