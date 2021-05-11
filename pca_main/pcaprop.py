@@ -62,6 +62,9 @@ class Proposition:
             return ~self + other
         return ImplicationOp(self, other)
 
+    def __lshift__(self, other):
+        return other.__rshift__(self)
+
 
 class Variable(Proposition):
 
