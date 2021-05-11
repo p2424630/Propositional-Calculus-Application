@@ -21,8 +21,7 @@ The main usage is as a back-end API server for the [Front-End](https://github.co
 Main usage of this application is as an API server with a robust front-end as the one developed with it. 
 
 It can still be
-used standalone though, in this case the installation of the libraries: `fastapi`, `pydantic`, `uvicorn`
-and `starlette` are not necessary. 
+used standalone though, in this case the required libraries are only: `setuptools` and `lark-parser`.
 
 An example is shown below, parsing a simple proposition and performing various
 functions.
