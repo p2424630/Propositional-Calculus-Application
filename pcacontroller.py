@@ -106,7 +106,7 @@ async def sections_ex(section):
 @app.get("/api/exercises/eval/{q_prop}", response_model=ExerciseEvalModel)
 async def exercise_eval(q_prop, methods, t_prop):
     try:
-        q_proposition = apply_methods(q_prop, methods)
+        q_proposition = _apply_methods(q_prop, methods)
         t_proposition = pcabuilder.InitProp(t_prop)
         return {
             'Result_Prop': str(q_proposition),
@@ -120,7 +120,7 @@ async def exercise_eval(q_prop, methods, t_prop):
 async def partial_application(prop, methods):
     try:
         return {
-            'Result': str(apply_methods(prop, methods)),
+            'Result': str(_apply_methods(prop, methods)),
         }
     except Exception as e:
         raise PropException(error=str(e))
@@ -137,7 +137,7 @@ async def all_laws():
         raise PropException(error=str(e))
 
 
-def apply_methods(prop, methods):
+def _apply_methods(prop, methods):
     prop = pcabuilder.InitProp(prop)
     for met in [getattr(pcabuilder.InitProp, method) for method in methods.split(',')]:
         prop = met(prop)

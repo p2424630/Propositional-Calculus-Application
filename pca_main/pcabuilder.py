@@ -6,32 +6,32 @@ from pca_main import pcaprop, pcaparser
 
 
 class Laws:
-    __slots__ = ('proposition', 'parsed')
+    __slots__ = ('_proposition', '_parsed')
 
     def __init__(self, proposition: str) -> None:
-        self.proposition = proposition
-        self.parsed = pcaparser.PARSER.parse(proposition)
+        self._proposition = proposition
+        self._parsed = pcaparser.PARSER.parse(proposition)
 
     def commutativity(self):
-        return _commutativity(self.parsed)
+        return _commutativity(self._parsed)
 
     def de_morgan(self):
-        return _de_morgan(self.parsed)
+        return _de_morgan(self._parsed)
 
     def idempotence(self):
-        return _idempotence(self.parsed)
+        return _idempotence(self._parsed)
 
     def implication(self):
-        return _implication(self.parsed)
+        return _implication(self._parsed)
 
     def involution(self):
-        return _involution(self.parsed)
+        return _involution(self._parsed)
 
     def maximum(self):
-        return _maximum(self.parsed)
+        return _maximum(self._parsed)
 
     def minimum(self):
-        return _minimum(self.parsed)
+        return _minimum(self._parsed)
 
 
 class InitProp(Laws):
@@ -44,16 +44,16 @@ class InitProp(Laws):
         :param other:
         :return: bool
         """
-        return isinstance(other, self.__class__) and self.parsed == other.parsed
+        return isinstance(other, self.__class__) and self._parsed == other._parsed
 
     def __str__(self):
-        return str(self.parsed)
+        return str(self._parsed)
 
     def __repr__(self):
-        return repr(self.parsed)
+        return repr(self._parsed)
 
     def unique_vars(self):
-        return sorted(set(_get_vars(self.parsed)))
+        return sorted(set(_get_vars(self._parsed)))
 
     def interpretations(self, max_vars: int = 10):
         prop_vars = self.unique_vars()
@@ -66,14 +66,14 @@ class InitProp(Laws):
             raise ValueError(f'Variable length {len_prop_vars}, exceeded the allowed {max_vars}')
         for comb in product([pcaprop.FalseProp(), pcaprop.TrueProp()], repeat=len_prop_vars):
             interp = dict(zip(prop_vars, comb))
-            interp_prop = _get_interp(self.parsed, interp)
+            interp_prop = _get_interp(self._parsed, interp)
             interp_values = list(interp.values())
             interp_values.append(_eval_prop(interp_prop))
             yield interp_values
 
     def satisfiable(self):
         if len(self.unique_vars()) < 1:
-            return _eval_prop(self.parsed)
+            return _eval_prop(self._parsed)
         for i in self.interpretations():
             if i[-1]:
                 return pcaprop.TrueProp()
@@ -81,7 +81,7 @@ class InitProp(Laws):
 
     def tautology(self):
         if len(self.unique_vars()) < 1:
-            return _eval_prop(self.parsed)
+            return _eval_prop(self._parsed)
         for i in self.interpretations():
             if not i[-1]:
                 return pcaprop.FalseProp()

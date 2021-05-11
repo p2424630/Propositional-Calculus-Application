@@ -27,6 +27,18 @@ class TestParser(unittest.TestCase):
                 pcaprop.Variable('A')))
         self.assertEqual(a, to_assert)
 
+    def test_multiples(self):
+        a = PARSER.parse('A and B and C or D or F')
+        to_assert = pcaprop.DisjunctionOp(pcaprop.DisjunctionOp(
+            pcaprop.ConjunctionOp(pcaprop.ConjunctionOp(pcaprop.Variable('A'), pcaprop.Variable('B')),
+                                  pcaprop.Variable('C')), pcaprop.Variable('D')), pcaprop.Variable('F'))
+        self.assertEqual(a, to_assert)
+        a = PARSER.parse('A implies B implies C iff D iff F')
+        to_assert = pcaprop.EquivalenceOp(pcaprop.EquivalenceOp(
+            pcaprop.ImplicationOp(pcaprop.ImplicationOp(pcaprop.Variable('A'), pcaprop.Variable('B')),
+                                  pcaprop.Variable('C')), pcaprop.Variable('D')), pcaprop.Variable('F'))
+        self.assertEqual(a, to_assert)
+
 
 if __name__ == '__main__':
     unittest.main()

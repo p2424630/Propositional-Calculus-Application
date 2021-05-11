@@ -123,8 +123,7 @@ class UnaryOp(Proposition):
     def __str__(self):
         if isinstance(self._prop, UnaryOp):
             return f'{self.__class__.symbol}({str(self._prop)})'
-        else:
-            return f'{self.__class__.symbol}{str(self._prop)}'
+        return f'{self.__class__.symbol}{str(self._prop)}'
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._prop)})'

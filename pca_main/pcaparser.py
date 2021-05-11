@@ -6,8 +6,8 @@ from pca_main import pcaprop
 
 
 GRAMMAR = '''
-             ?exp_iff: exp_imp (OP_EQUIVALENCE exp_imp)*
-             ?exp_imp: exp_or (OP_IMPLICATION exp_or)*
+             ?exp_iff: exp_implies (OP_EQUIVALENCE exp_implies)*
+             ?exp_implies: exp_or (OP_IMPLICATION exp_or)*
              ?exp_or: exp_and (OP_DISJUNCTION exp_and)*
              ?exp_and: atom (OP_CONJUNCTION atom)*
              atom: OP_NEGATION atom                      -> exp_not
@@ -28,26 +28,29 @@ GRAMMAR = '''
              %import common.WS
              %ignore WS
          '''
-# ?exp_or_and: atom ((OP_DISJUNCTION | OP_CONJUNCTION) atom)*
 
 
 class PropTransformer(Transformer):
 
     def exp_iff(self, value):
-        return pcaprop.EquivalenceOp(value[0], value[2])
+        if len(value) == 3:
+            return pcaprop.EquivalenceOp(value[0], value[2])
+        return self._rec_object(value, 'exp_iff')
 
-    def exp_imp(self, value):
-        return pcaprop.ImplicationOp(value[0], value[2])
-
-    # def exp_or_and(self, value):
-    #     print(value)
-    #     return getattr(self, f'exp_{value[1]}')(value)
+    def exp_implies(self, value):
+        if len(value) == 3:
+            return pcaprop.ImplicationOp(value[0], value[2])
+        return self._rec_object(value, 'exp_implies')
 
     def exp_or(self, value):
-        return pcaprop.DisjunctionOp(value[0], value[2])
+        if len(value) == 3:
+            return pcaprop.DisjunctionOp(value[0], value[2])
+        return self._rec_object(value, 'exp_or')
 
     def exp_and(self, value):
-        return pcaprop.ConjunctionOp(value[0], value[2])
+        if len(value) == 3:
+            return pcaprop.ConjunctionOp(value[0], value[2])
+        return self._rec_object(value, 'exp_and')
 
     def exp_not(self, value):
         return pcaprop.NegationOp(value[1])
@@ -64,16 +67,12 @@ class PropTransformer(Transformer):
     def atom_var(self, value):
         return pcaprop.Variable(value[0])
 
-
-# def helper_fun(value):
-#     c = [v for v in value[1::2]]  # List slicing - list[begin:finish:step]
-#     v = [v for v in value[0::2]]
-#     print(c)
-#     print(v)
-#     # for i, v in enumerate(value):
-#
-#     # print(f'{i}: {v}')
-#     # l.append(getattr(self, f'exp_{v}')(value))
+    def _rec_object(self, value, function):
+        f = getattr(self, function)
+        if len(value) == 3:
+            return f(value)
+        value[:3] = [f(value[:3])]  # List Slicing to replace first 3 elements with corresponding proposition
+        return self._rec_object(value, function)
 
 
 PARSER = Lark(GRAMMAR, parser='lalr', start='exp_iff', transformer=PropTransformer())
