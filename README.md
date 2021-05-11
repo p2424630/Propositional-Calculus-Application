@@ -9,7 +9,7 @@ The main usage is as a back-end API server for the [Front-End](https://github.co
 
 ## Setup
 
-1. Have python installed (recommended miniconda)
+1. Have python installed (recommended [miniconda](https://docs.conda.io/en/latest/miniconda.html))
 2. Run `pip install -e PCA_DIRECTORY`
 3. Navigate to `PCA_DIRECTORY` and run `uvicorn pcacontroller:app` to start the API server. Use `--port PORT` to specify the port and `--reload` to have automatic reload of server on file change.
 
