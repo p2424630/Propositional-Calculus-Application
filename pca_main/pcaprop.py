@@ -32,7 +32,7 @@ class Proposition:
 
     def __add__(self, other):
         if all(isinstance(prop, (TrueProp, FalseProp)) for prop in [self, other]):
-            if isinstance(self, TrueProp) or isinstance(other, TrueProp):
+            if any(isinstance(prop, TrueProp) for prop in [self, other]):
                 return TrueProp()
             return FalseProp()
         return DisjunctionOp(self, other)
@@ -42,7 +42,7 @@ class Proposition:
 
     def __mul__(self, other):
         if all(isinstance(prop, (TrueProp, FalseProp)) for prop in [self, other]):
-            if isinstance(self, FalseProp) or isinstance(other, FalseProp):
+            if any(isinstance(prop, FalseProp) for prop in [self, other]):
                 return FalseProp()
             return TrueProp()
         return ConjunctionOp(self, other)
