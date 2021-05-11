@@ -7,8 +7,10 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name='propcalc',
-    extras_require=dict(test=['pytest']),
+    name='pca',
+    version='1.0.0',
+    description='Propositional Calculus Application',
+    author='Georgios Karseras',
+    url='https://github.com/p2424630/PCA',
     packages=find_packages(where='pca_main'),
-    package_dir={"": "pca_main"},
     install_requires=requirements)
