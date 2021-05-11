@@ -1,10 +1,10 @@
 # Propositional-Calculus-Application
 
-This is a Python application regarding Propositional Calculus. Firstly `pcabuilder` defines the propositions,
-then `pcabuilder` which extends the application with law applications, truth table creation for all possible
+This is a Python application regarding Propositional Calculus. Firstly, `pcaprop` defines the propositions,
+then `pcabuilder` extends the application with law applications, truth table creation for all possible
 interpretations and other functionalities. The `pcabuilder` is initialized with a string, which is parsed and
-transformed into proposition with the `pcaparser` file. Finally, the `pcacontroller` is used to create an API which is
-used with the [Front-End](https://github.com/p2424630/PCA-Front).
+transformed into proposition with `pcaparser`. Finally, the `pcacontroller` is used to create an API back-end server which is
+used in combination with the [Front-End](https://github.com/p2424630/PCA-Front).
 
 ***
 
@@ -12,7 +12,7 @@ used with the [Front-End](https://github.com/p2424630/PCA-Front).
 
 1. Have python installed (recommended miniconda)
 2. Run `pip install -e PCA_DIRECTORY`
-3. Navigate to folder and run `uvicorn pcacontroller:app` to start the API server. Use `--port PORT` to specify the port
+3. Navigate to `PCA_DIRECTORY` and run `uvicorn pcacontroller:app` to start the API server. Use `--port PORT` to specify the port
    and `--reload` to have automatic reload of server on file change.
 
 ***
@@ -34,4 +34,4 @@ functions.
 
 > More info can be found [here](https://github.com/p2424630/PCA/blob/test/LICENSE)
 
-The project is MIT licenced.
+The project is licenced under MIT.
