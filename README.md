@@ -1,10 +1,9 @@
 # Propositional-Calculus-Application
 
-This is a Python application regarding Propositional Calculus. Firstly, `pcaprop` defines the propositions,
-then `pcabuilder` extends the application with law applications, truth table creation for all possible interpretations
-and other functionalities. The `pcabuilder` is initialized with a string, which is parsed and transformed into
-proposition with `pcaparser`. Finally, the `pcacontroller` is used to create an API back-end server which is used in
-combination with the [Front-End](https://github.com/p2424630/PCA-Front).
+This is a Python application regarding Propositional Calculus, allowing the creation of proposition given a valid string
+and providing various functionalities that can be further applied.
+
+The main usage is as a back-end API server for the [Front-End](https://github.com/p2424630/PCA-Front).
 
 ***
 
@@ -12,16 +11,20 @@ combination with the [Front-End](https://github.com/p2424630/PCA-Front).
 
 1. Have python installed (recommended miniconda)
 2. Run `pip install -e PCA_DIRECTORY`
-3. Navigate to `PCA_DIRECTORY` and run `uvicorn pcacontroller:app` to start the API server. Use `--port PORT` to specify
-   the port and `--reload` to have automatic reload of server on file change.
+3. Navigate to `PCA_DIRECTORY` and run `uvicorn pcacontroller:app` to start the API server. Use `--port PORT` to specify the port and `--reload` to have automatic reload of server on file change.
+
 
 ***
 
 ## Usage
 
-Main usage of this application is as an API server with a robust front-end as the one developed with it. It can still be
-used standalone, in this case the installation of the libraries: `fastapi`, `pydantic`, `uvicorn`
-and `starlette` is not necessary. An example is shown below, parsing a simple proposition and performing various
+Main usage of this application is as an API server with a robust front-end as the one developed with it. 
+
+It can still be
+used standalone though, in this case the installation of the libraries: `fastapi`, `pydantic`, `uvicorn`
+and `starlette` are not necessary. 
+
+An example is shown below, parsing a simple proposition and performing various
 functions.
 
 ```python
@@ -38,6 +41,10 @@ print(f'prop_inv: {prop.involution()}')
 print(f'prop_com: {prop.commutativity()}')
 ```
 
+![alt text][pcabuilder]
+
+[pcabuilder]: https://github.com/p2424630/PCA/blob/main/images/pcabuilder_example.JPG "pcabuilder image"
+
 ### Parsing Grammar
 
 | Input        | Accepted|
@@ -46,12 +53,26 @@ print(f'prop_com: {prop.commutativity()}')
 | True | `true` `top` `⊤`|
 | False | `false` `bot` `⊥`|
 | Negation | `not` `¬` `!` `˜`|
-| Equivalence | `iff` `⇔` `↔`|
-| Implication | `implies` `⇒` `→`|
-| Disjunction | `or` `∨` `+` `∥`|
 | Conjunction | `and` `∧` `·` `&`|
+| Disjunction | `or` `∨` `+` `∥`|
+| Implication | `implies` `⇒` `→`|
+| Equivalence | `iff` `⇔` `↔`|
 
-> The exact parser grammar can be found in [pcaparser](https://github.com/p2424630/PCA/blob/main/pca_main/pcaparser.py)
+### Precedence
+
+1. ( ) - True - False - Variable
+
+2. Conjunction
+
+3. Disjunction
+
+4. Implication
+
+5. Equivalence
+
+> The exact grammar can be seen in [pcaparser](https://github.com/p2424630/PCA/blob/main/pca_main/pcaparser.py)
+
+
 
 ***
 
