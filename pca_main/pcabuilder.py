@@ -11,6 +11,22 @@ class Laws:
     def __init__(self, proposition: str) -> None:
         self._parsed = pcaparser.PARSER.parse(proposition)
 
+    def __eq__(self, other) -> bool:
+        """
+        Structural equivalence
+        'A or B' != 'B or A'
+        'A or B' == '(A or B)'
+        :param other:
+        :return: bool
+        """
+        return isinstance(other, self.__class__) and self._parsed == other._parsed
+
+    def __str__(self):
+        return str(self._parsed)
+
+    def __repr__(self):
+        return repr(self._parsed)
+
     def commutativity(self):
         return _commutativity(self._parsed)
 
@@ -34,22 +50,6 @@ class Laws:
 
 
 class InitProp(Laws):
-
-    def __eq__(self, other) -> bool:
-        """
-        Structural equivalence
-        'A or B' != 'B or A'
-        'A or B' == '(A or B)'
-        :param other:
-        :return: bool
-        """
-        return isinstance(other, self.__class__) and self._parsed == other._parsed
-
-    def __str__(self):
-        return str(self._parsed)
-
-    def __repr__(self):
-        return repr(self._parsed)
 
     def unique_vars(self):
         """
