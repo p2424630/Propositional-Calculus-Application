@@ -224,6 +224,23 @@ class InitProp(Laws):
         :return: iterable
         """
 
+        def _get_interp(op, interp):
+            """
+            Recursively traverse proposition and replace all instances of variables with the interpretation mapping.
+            :param op: Proposition
+            :param interp: Dictionary mapping variables to TrueProp or FalseProp.
+            :return: Proposition with FalseProp/TrueProp instead of Variables.
+            """
+
+            if isinstance(op, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
+                return op
+            if isinstance(op, pcaprop.Variable):
+                return interp[op]
+            if isinstance(op, pcaprop.UnaryOp):
+                return op.__class__(_get_interp(op.prop, interp))
+            if isinstance(op, pcaprop.BinaryOp):
+                return op.__class__(_get_interp(op.prop_l, interp), _get_interp(op.prop_r, interp))
+
         prop_vars = self.unique_vars()
         len_prop_vars = len(prop_vars)
         if len_prop_vars < 1:
@@ -242,7 +259,7 @@ class InitProp(Laws):
             interp_values = list(interp.values())
             # For the current interpretation evaluate the proposition and append the result in the original
             # interpretation list.
-            interp_values.append(_eval_prop(interp_prop))
+            interp_values.append(self.eval_prop(interp_prop))
             yield interp_values
 
     def satisfiable(self):
@@ -252,7 +269,7 @@ class InitProp(Laws):
         """
 
         if len(self.unique_vars()) < 1:
-            return _eval_prop(self._parsed)
+            return self.eval_prop(self._parsed)
         for i in self.interpretations():
             if i[-1]:
                 return pcaprop.TrueProp()
@@ -265,7 +282,7 @@ class InitProp(Laws):
         """
 
         if len(self.unique_vars()) < 1:
-            return _eval_prop(self._parsed)
+            return self.eval_prop(self._parsed)
         for i in self.interpretations():
             if not i[-1]:
                 return pcaprop.FalseProp()
@@ -279,35 +296,18 @@ class InitProp(Laws):
 
         return pcaprop.FalseProp() if self.satisfiable() else pcaprop.TrueProp()
 
-
-def _get_interp(op, interp):
-    """
-    Recursively traverse proposition and replace all instances of variables with the interpretation mapping.
-    :param op: Proposition
-    :param interp: Dictionary mapping variables to TrueProp or FalseProp.
-    :return: Proposition with FalseProp/TrueProp instead of Variables.
-    """
-
-    if isinstance(op, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
-        return op
-    if isinstance(op, pcaprop.Variable):
-        return interp[op]
-    if isinstance(op, pcaprop.UnaryOp):
-        return op.__class__(_get_interp(op.prop, interp))
-    if isinstance(op, pcaprop.BinaryOp):
-        return op.__class__(_get_interp(op.prop_l, interp), _get_interp(op.prop_r, interp))
-
-
-def _eval_prop(op):
-    """
-    Recursively traverse proposition evaluate.
-    :param op: Proposition
-    :return: bool (Class)
-    """
-
-    if isinstance(op, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
-        return op
-    if isinstance(op, pcaprop.NegationOp):
-        return op.__class__(_eval_prop(op.prop)).eval()
-    if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
-        return op.__class__(_eval_prop(op.prop_l), _eval_prop(op.prop_r)).eval()
+    @staticmethod
+    def eval_prop(op):
+        """
+        Recursively traverse proposition evaluate.
+        :param op: Proposition
+        :return: bool (Class)
+        """
+        def _eval_prop(op):
+            if isinstance(op, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
+                return op
+            if isinstance(op, pcaprop.NegationOp):
+                return op.__class__(_eval_prop(op.prop)).eval()
+            if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+                return op.__class__(_eval_prop(op.prop_l), _eval_prop(op.prop_r)).eval()
+        return _eval_prop(op)
