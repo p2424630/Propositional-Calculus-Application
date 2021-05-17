@@ -299,15 +299,18 @@ class InitProp(Laws):
     @staticmethod
     def eval_prop(op):
         """
-        Recursively traverse proposition evaluate.
+        Recursively traverse proposition and perform evaluation.
         :param op: Proposition
         :return: bool (Class)
         """
+
         def _eval_prop(op):
             if isinstance(op, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
                 return op
             if isinstance(op, pcaprop.NegationOp):
                 return op.__class__(_eval_prop(op.prop)).eval()
-            if isinstance(op, (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
+            if isinstance(op,
+                          (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
                 return op.__class__(_eval_prop(op.prop_l), _eval_prop(op.prop_r)).eval()
+
         return _eval_prop(op)
