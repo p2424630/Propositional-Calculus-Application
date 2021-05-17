@@ -3,15 +3,22 @@
 
 from pca_main import pcabuilder
 
-satisfiable = [
+
+SATISFIABLE = [
     {
-        'question': "Are the following propositions satisfiable? Answer in either true or false",
+        'question': "Are the propositions satisfiable? Answer in either true or false",
+        'eval_methods': [pcabuilder.InitProp.satisfiable.__name__],
+        'props': ['false', 'true or false', 'true and (false and true)']
+    },
+    {
+        'question': "Are the following propositions satisfiable? "
+                    "There exists an interpretation which results in true",
         'eval_methods': [pcabuilder.InitProp.satisfiable.__name__],
         'props': ['Q and false', 'Q or (P or R)', 'Q or P', 'Q ∧ (P ⇔ Q)']
     }
 ]
 
-involution = [
+INVOLUTION = [
     {
         'question': "Using the Involution law, which removes double negations, "
                     "simplify the propositions below",
@@ -20,7 +27,7 @@ involution = [
     }
 ]
 
-max_min = [
+MAX_MIN = [
     {
         'question': "Using the Minimum Law, simplify the following propositions",
         'eval_methods': [pcabuilder.InitProp.minimum.__name__],
@@ -30,10 +37,15 @@ max_min = [
         'question': "Using the Maximum law, simplify the propositions below",
         'eval_methods': [pcabuilder.InitProp.maximum.__name__],
         'props': ['A or true', 'A and (B or true)']
+    },
+    {
+        'question': "Using Both Maximum and Minimum law, simplify the propositions below",
+        'eval_methods': [pcabuilder.InitProp.minimum.__name__, pcabuilder.InitProp.maximum.__name__],
+        'props': ['(A or true) and false', '(B and false) or (B or true)']
     }
 ]
 
-de_morgan = [
+DE_MORGAN = [
     {
         'question': "Apply De Morgan's law to the following propositions",
         'eval_methods': [pcabuilder.InitProp.de_morgan.__name__],
@@ -41,15 +53,15 @@ de_morgan = [
     }
 ]
 
-idempotence = [
+IDEMPOTENCE = [
     {
         'question': "Using Idempotence law create the equavelence of the following Propositions",
         'eval_methods': [pcabuilder.InitProp.idempotence.__name__],
-        'props': ['P and P', '(Q and P) or (Q and P)']
+        'props': ['P and P', '(Q and P) or (P and Q)']
     }
 ]
 
-commutativity = [
+COMMUTATIVITY = [
     {
         'question': "Apply Commutativity law on the following Propositions",
         'eval_methods': [pcabuilder.InitProp.commutativity.__name__],
@@ -57,7 +69,7 @@ commutativity = [
     }
 ]
 
-tautology = [
+TAUTOLOGY = [
     {
         'question': "Determine if the following Propositions are a Tautology - for all interpretations the final "
                     "result is True",
@@ -66,7 +78,7 @@ tautology = [
     }
 ]
 
-contradiction = [
+CONTRADICTION = [
     {
         'question': "Determine if the following Propositions are a Contradiction - for all interpretations the final "
                     "result is False",
@@ -75,7 +87,7 @@ contradiction = [
     }
 ]
 
-implication = [
+IMPLICATION = [
     {
         'question': "Apply the Implication law and transform the following Propositions",
         'eval_methods': [pcabuilder.InitProp.implication.__name__],
@@ -83,7 +95,7 @@ implication = [
     }
 ]
 
-combinations = [
+COMBINATIONS = [
     {
         'question': "Apply De Morgan's and then Involution law to simplify the following propositions",
         'eval_methods': [pcabuilder.InitProp.de_morgan.__name__, pcabuilder.InitProp.involution.__name__],
@@ -96,15 +108,15 @@ combinations = [
     }
 ]
 
-exercises = {
-    'idempotence': idempotence,
-    'satisfiable': satisfiable,
-    'tautology': tautology,
-    'contradiction': contradiction,
-    'involution': involution,
-    'max_min': max_min,
-    'de_morgan': de_morgan,
-    'commutativity': commutativity,
-    'implication': implication,
-    'combinations': combinations
+EXERCISES = {
+    'IDEMPOTENCE': IDEMPOTENCE,
+    'SATISFIABLE': SATISFIABLE,
+    'TAUTOLOGY': TAUTOLOGY,
+    'CONTRADICTION': CONTRADICTION,
+    'INVOLUTION': INVOLUTION,
+    'MAX_MIN': MAX_MIN,
+    'DE_MORGAN': DE_MORGAN,
+    'COMMUTATIVITY': COMMUTATIVITY,
+    'IMPLICATION': IMPLICATION,
+    'COMBINATIONS': COMBINATIONS
 }

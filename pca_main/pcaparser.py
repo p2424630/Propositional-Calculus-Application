@@ -71,7 +71,8 @@ class PropTransformer(Transformer):
         f = getattr(self, function)
         if len(value) == 3:
             return f(value)
-        value[:3] = [f(value[:3])]  # List Slicing to replace first 3 elements with corresponding proposition
+        # List Slicing to replace first 3 elements with corresponding proposition
+        value[:3] = [f(value[:3])]
         return self._rec_object(value, function)
 
 
