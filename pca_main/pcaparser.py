@@ -20,7 +20,7 @@ GRAMMAR = '''
              TRUE: "true" | "top" | "\u22a4"
              FALSE: "false" | "bot" | "\u22A5"
              OP_CONJUNCTION: "and" | "\u2227" | "\u00B7"
-             OP_DISJUNCTION: "or" | "\u2228" | "\u002B" | "\u2225"
+             OP_DISJUNCTION: "or" | "\u2228" | "\u2225"
              OP_NEGATION: "not" | "\u00AC" | "\u0021" | "\u02DC"
              OP_IMPLICATION: "implies" | "\u21D2" | "\u2192"
              OP_EQUIVALENCE: "iff" | "\u21D4" | "\u2194"
