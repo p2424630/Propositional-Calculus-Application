@@ -2,6 +2,7 @@
 # @Date:   17 Nov 2020 08:28
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 SYMBOLS = {

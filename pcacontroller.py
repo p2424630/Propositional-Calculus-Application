@@ -2,12 +2,12 @@
 # @Date:   22 Jan 2021 14:04
 
 from typing import List, Dict
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pca_main import exercises, pcabuilder
 from pydantic import BaseModel
-from pca_main import pcabuilder
-from pca_main import exercises
 
 app = FastAPI()
 
