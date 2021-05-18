@@ -52,7 +52,7 @@ print(f'prop_com: {prop.commutativity()}')
 | True | `true` `top` `⊤`|
 | False | `false` `bot` `⊥`|
 | Negation | `not` `¬` `!` `˜`|
-| Conjunction | `and` `∧` `·` `&`|
+| Conjunction | `and` `∧` `·`|
 | Disjunction | `or` `∨` `+` `∥`|
 | Implication | `implies` `⇒` `→`|
 | Equivalence | `iff` `⇔` `↔`|
