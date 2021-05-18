@@ -26,7 +26,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-sandbox.py
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -129,3 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 /.idea/
+sandbox.py
