@@ -42,7 +42,7 @@ print(f'prop_com: {prop.commutativity()}')
 
 ![alt text][pcabuilder]
 
-[pcabuilder]: https://github.com/p2424630/PCA/blob/main/images/pcabuilder_example.JPG "pcabuilder image"
+[pcabuilder]: images/pcabuilder_example.JPG "pcabuilder image"
 
 ### Parsing Grammar
 
@@ -69,7 +69,7 @@ print(f'prop_com: {prop.commutativity()}')
 
 5. Equivalence
 
-> The exact grammar can be seen in [pcaparser](https://github.com/p2424630/PCA/blob/main/pca_main/pcaparser.py)
+> The exact grammar can be seen in [pcaparser](pca_main/pcaparser.py)
 
 
 
@@ -77,6 +77,6 @@ print(f'prop_com: {prop.commutativity()}')
 
 ## License
 
-> More info can be found [here](https://github.com/p2424630/PCA/blob/main/LICENSE)
+> More info can be found [here](LICENSE)
 
 The project is licenced under MIT.
