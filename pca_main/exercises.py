@@ -41,7 +41,7 @@ MAX_MIN = [
     {
         'question': "Using Both Maximum and Minimum law, simplify the propositions below",
         'eval_methods': [pcabuilder.InitProp.minimum.__name__, pcabuilder.InitProp.maximum.__name__],
-        'props': ['(A or true) and false', '(B and false) or (B or true)']
+        'props': ['(A or true) and false', '(B and false) or (B and true)']
     }
 ]
 
@@ -55,7 +55,7 @@ DE_MORGAN = [
 
 IDEMPOTENCE = [
     {
-        'question': "Using Idempotence law create the equavelence of the following Propositions",
+        'question': "Using Idempotence law, create the equivalence of the following Propositions",
         'eval_methods': [pcabuilder.InitProp.idempotence.__name__],
         'props': ['P and P', '(Q and P) or (P and Q)']
     }
@@ -65,14 +65,13 @@ COMMUTATIVITY = [
     {
         'question': "Apply Commutativity law on the following Propositions",
         'eval_methods': [pcabuilder.InitProp.commutativity.__name__],
-        'props': ['P and Q', '(P and Q) and (Q or P)', 'P iff Q']
+        'props': ['P and Q', 'P iff Q', '(P and Q) and (Q or P)']
     }
 ]
 
 TAUTOLOGY = [
     {
-        'question': "Determine if the following Propositions are a Tautology - for all interpretations the final "
-                    "result is True",
+        'question': "Determine if the following Propositions are a Tautology. The result is true all interpretations",
         'eval_methods': [pcabuilder.InitProp.tautology.__name__],
         'props': ['P and Q', 'P or not P']
     }
@@ -80,8 +79,7 @@ TAUTOLOGY = [
 
 CONTRADICTION = [
     {
-        'question': "Determine if the following Propositions are a Contradiction - for all interpretations the final "
-                    "result is False",
+        'question': "Determine if the following Propositions are a Contradiction. The result is never true for any interpretation",
         'eval_methods': [pcabuilder.InitProp.contradiction.__name__],
         'props': ['P or Q', 'P and not P']
     }
@@ -99,24 +97,24 @@ COMBINATIONS = [
     {
         'question': "Apply De Morgan's and then Involution law to simplify the following propositions",
         'eval_methods': [pcabuilder.InitProp.de_morgan.__name__, pcabuilder.InitProp.involution.__name__],
-        'props': ['not (Q or P)', f'Q or not P']
+        'props': ['not (Q or P)', 'Q or not P']
     },
     {
         'question': "Apply Involution law and then commutativity to the following propositions",
         'eval_methods': [pcabuilder.InitProp.involution.__name__, pcabuilder.InitProp.commutativity.__name__],
-        'props': ['not not Q or P', f'Q or not not (P and R)']
+        'props': ['not not Q or P', 'Q or not not (P and R)']
     }
 ]
 
 EXERCISES = {
-    'IDEMPOTENCE': IDEMPOTENCE,
     'SATISFIABLE': SATISFIABLE,
     'TAUTOLOGY': TAUTOLOGY,
     'CONTRADICTION': CONTRADICTION,
+    'COMMUTATIVITY': COMMUTATIVITY,
+    'IDEMPOTENCE': IDEMPOTENCE,
     'INVOLUTION': INVOLUTION,
     'MAX_MIN': MAX_MIN,
     'DE_MORGAN': DE_MORGAN,
-    'COMMUTATIVITY': COMMUTATIVITY,
     'IMPLICATION': IMPLICATION,
     'COMBINATIONS': COMBINATIONS
 }
