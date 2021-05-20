@@ -70,7 +70,7 @@ class InitProp(pcalaws.Laws):
             :return: Proposition with FalseProp/TrueProp instead of Variables.
             """
 
-            if isinstance(op, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
+            if isinstance(op, (pcaprop.TrueProp, pcaprop.FalseProp)):
                 return op
             if isinstance(op, pcaprop.Variable):
                 return interp[op]
@@ -141,7 +141,7 @@ class InitProp(pcalaws.Laws):
         """
 
         def _eval_prop(op):
-            if isinstance(op, (bool, pcaprop.TrueProp, pcaprop.FalseProp)):
+            if isinstance(op, (pcaprop.TrueProp, pcaprop.FalseProp)):
                 return op
             if isinstance(op, pcaprop.NegationOp):
                 return op.__class__(_eval_prop(op.prop)).eval()
