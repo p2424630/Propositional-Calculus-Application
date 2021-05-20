@@ -217,11 +217,10 @@ class InitProp(Laws):
 
         return sorted(set(_get_vars(self._parsed)))
 
-    def interpretations(self, max_vars: int = 10):
+    def interpretations(self):
         """
         Create all possible interpretations for all unique variables. For each interpretation replace the variables in
         the proposition and evaluate, the result is then appended to the current interpretation's list and yielded.
-        :param: max_vars -The number of maximum variables the proposition can have.
         :return: iterable
         """
 
@@ -248,8 +247,6 @@ class InitProp(Laws):
             # Return empty interpretation as this means the proposition is composed without any variables,
             # which means it can only take one, the current, interpretation.
             return
-        if len_prop_vars > max_vars:
-            raise ValueError(f'Variable length {len_prop_vars}, exceeded the allowed {max_vars}')
         # List of tuples for all possible interpretations for given number of variables
         combinations = product([pcaprop.FalseProp(), pcaprop.TrueProp()], repeat=len_prop_vars)
         for combination in combinations:
