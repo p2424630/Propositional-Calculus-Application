@@ -6,7 +6,7 @@ from typing import List, Dict
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pca_main import exercises, pcabuilder
+from pca_main import exercises, pcabuilder, pcalaws
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -130,8 +130,8 @@ async def partial_application(prop, methods):
 async def all_laws():
     try:
         return {
-            'Laws': [law for law in dir(pcabuilder.Laws) if
-                     not law.startswith("__") and callable(getattr(pcabuilder.Laws, law))]
+            'Laws': [law for law in dir(pcalaws.Laws) if
+                     not law.startswith("__") and callable(getattr(pcalaws.Laws, law))]
         }
     except Exception as e:
         raise PropException(error=str(e))
