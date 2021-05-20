@@ -131,7 +131,7 @@ async def all_laws():
     try:
         return {
             'Laws': [law for law in dir(pcalaws.Laws) if
-                     not law.startswith("__") and callable(getattr(pcalaws.Laws, law))]
+                     not law.startswith(("__", "_")) and callable(getattr(pcalaws.Laws, law))]
         }
     except Exception as e:
         raise PropException(error=str(e))

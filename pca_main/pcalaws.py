@@ -10,6 +10,11 @@ class Laws(ABC):
 
     @abstractmethod
     def proposition(self):
+        """
+        Raises
+        ------
+        NotImplementedError
+        """
         raise NotImplementedError
 
     def commutativity(self):
