@@ -57,7 +57,7 @@ IDEMPOTENCE = [
     {
         'question': "Using Idempotence law, create the equivalence of the following Propositions",
         'eval_methods': [pcabuilder.InitProp.idempotence.__name__],
-        'props': ['P and P', '(Q and P) or (P and Q)']
+        'props': ['P and P', 'Q or P']
     }
 ]
 
