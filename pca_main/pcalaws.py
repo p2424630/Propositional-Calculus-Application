@@ -21,7 +21,6 @@ class Laws(ABC):
         """
         Recursively traverse proposition and for all Binary operations besides implication and equivalence,
         switch the positions of left and right child.
-        :param op: Proposition
         :return: Proposition
         """
 
@@ -41,7 +40,6 @@ class Laws(ABC):
     def de_morgan(self):
         """
         Recursively traverse proposition and apply de_morgan transformation on all Disjunction and Conjunction operations.
-        :param op: Proposition
         :return: Proposition
         """
 
@@ -65,7 +63,6 @@ class Laws(ABC):
         """
         Recursively traverse proposition postorder (left->right->root) and check on Disjunction and Conjunction operations
         if left child equals right.
-        :param op: Proposition
         :return: Proposition
         """
 
@@ -86,7 +83,6 @@ class Laws(ABC):
     def implication(self):
         """
         Recursively traverse proposition and apply implication tranformation on all implication operations.
-        :param op: Proposition
         :return: Proposition
         """
 
@@ -106,7 +102,6 @@ class Laws(ABC):
         """
         Recursively traverse proposition and if the current proposition is Negation and the child is Negation then return
         the child of child.
-        :param op: Proposition
         :return: Proposition
         """
 
@@ -124,10 +119,9 @@ class Laws(ABC):
 
     def maximum(self):
         """
-        Recursively traverse proposition postorder (left->right->root) and check if disjunction and either left or right
-        child is TrueProp then return TrueProp or if it's conjunction then return left if right is TrueProp or right if
-        left is TrueProp.
-        :param op: Proposition
+        Recursively traverse proposition postorder (left->right->root) and check
+        if disjunction and either left or right child is TrueProp then return TrueProp
+        or if it's conjunction then return left if right is TrueProp or right if left is TrueProp.
         :return: Proposition
         """
 
@@ -156,7 +150,6 @@ class Laws(ABC):
         Recursively traverse proposition postorder (left->right->root) and check if conjunction and either left or right
         child is FalseProp then return FalseProp if it's disjunction then return left if right is FalseProp or right if
         left is FalseProp.
-        :param op: Proposition
         :return: Proposition
         """
 
