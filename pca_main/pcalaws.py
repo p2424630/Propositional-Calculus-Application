@@ -31,9 +31,11 @@ class Laws(ABC):
                 return op.__class__(_commutativity(op.prop))
             if isinstance(op, pcaprop.BinaryOp):
                 # Same order for implication or equivalence
+                prop_l = _commutativity(op.prop_l)
+                prop_r = _commutativity(op.prop_r)
                 if isinstance(op, (pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
-                    return op.__class__(_commutativity(op.prop_l), _commutativity(op.prop_r))
-                return op.__class__(_commutativity(op.prop_r), _commutativity(op.prop_l))
+                    return op.__class__(prop_l, prop_r)
+                return op.__class__(prop_r, prop_l)
 
         return _commutativity(self.proposition)
 
@@ -49,13 +51,15 @@ class Laws(ABC):
             if isinstance(op, pcaprop.UnaryOp):
                 return op.__class__(_de_morgan(op.prop))
             if isinstance(op, pcaprop.BinaryOp):
+                prop_l = _de_morgan(op.prop_l)
+                prop_r = _de_morgan(op.prop_r)
                 if isinstance(op, pcaprop.DisjunctionOp):
-                    return pcaprop.NegationOp(pcaprop.ConjunctionOp(pcaprop.NegationOp(_de_morgan(op.prop_l)),
-                                                                    pcaprop.NegationOp(_de_morgan(op.prop_r))))
+                    return pcaprop.NegationOp(pcaprop.ConjunctionOp(pcaprop.NegationOp(prop_l),
+                                                                    pcaprop.NegationOp(prop_r)))
                 if isinstance(op, pcaprop.ConjunctionOp):
-                    return pcaprop.NegationOp(pcaprop.DisjunctionOp(pcaprop.NegationOp(_de_morgan(op.prop_l)),
-                                                                    pcaprop.NegationOp(_de_morgan(op.prop_r))))
-                return op.__class__(_de_morgan(op.prop_l), _de_morgan(op.prop_r))
+                    return pcaprop.NegationOp(pcaprop.DisjunctionOp(pcaprop.NegationOp(prop_l),
+                                                                    pcaprop.NegationOp(prop_r)))
+                return op.__class__(prop_l, prop_r)
 
         return _de_morgan(self.proposition)
 
@@ -92,9 +96,11 @@ class Laws(ABC):
             if isinstance(op, pcaprop.UnaryOp):
                 return op.__class__(_implication(op.prop))
             if isinstance(op, pcaprop.BinaryOp):
+                prop_l = _implication(op.prop_l)
+                prop_r = _implication(op.prop_r)
                 if isinstance(op, pcaprop.ImplicationOp):
-                    return pcaprop.DisjunctionOp(pcaprop.NegationOp(_implication(op.prop_l)), _implication(op.prop_r))
-                return op.__class__(_implication(op.prop_l), _implication(op.prop_r))
+                    return pcaprop.DisjunctionOp(pcaprop.NegationOp(prop_l), prop_r)
+                return op.__class__(prop_l, prop_r)
 
         return _implication(self.proposition)
 
@@ -109,7 +115,9 @@ class Laws(ABC):
             if isinstance(op, (pcaprop.Variable, pcaprop.TrueProp, pcaprop.FalseProp)):
                 return op
             if isinstance(op, pcaprop.BinaryOp):
-                return op.__class__(_involution(op.prop_l), _involution(op.prop_r))
+                prop_l = _involution(op.prop_l)
+                prop_r = _involution(op.prop_r)
+                return op.__class__(prop_l, prop_r)
             if isinstance(op, pcaprop.NegationOp):
                 if isinstance(op.prop, pcaprop.NegationOp):
                     return _involution(op.prop.prop)
