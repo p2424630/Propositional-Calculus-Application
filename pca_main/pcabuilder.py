@@ -77,7 +77,9 @@ class InitProp(pcalaws.Laws):
             if isinstance(op, pcaprop.UnaryOp):
                 return op.__class__(_get_interp(op.prop, interp))
             if isinstance(op, pcaprop.BinaryOp):
-                return op.__class__(_get_interp(op.prop_l, interp), _get_interp(op.prop_r, interp))
+                prop_l = _get_interp(op.prop_l, interp)
+                prop_r = _get_interp(op.prop_r, interp)
+                return op.__class__(prop_l, prop_r)
 
         prop_vars = self.unique_vars()
         len_prop_vars = len(prop_vars)
@@ -147,6 +149,8 @@ class InitProp(pcalaws.Laws):
                 return op.__class__(_eval_prop(op.prop)).eval()
             if isinstance(op,
                           (pcaprop.DisjunctionOp, pcaprop.ConjunctionOp, pcaprop.ImplicationOp, pcaprop.EquivalenceOp)):
-                return op.__class__(_eval_prop(op.prop_l), _eval_prop(op.prop_r)).eval()
+                prop_l = _eval_prop(op.prop_l)
+                prop_r = _eval_prop(op.prop_r)
+                return op.__class__(prop_l, prop_r).eval()
 
         return _eval_prop(op)
